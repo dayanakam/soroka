@@ -1,0 +1,13 @@
+[project]
+name = "outfits-bot"
+version = "0.1.0"
+description = "Телеграм-бот, который присылает подборки одежды под стиль, размер и бюджет"
+requires-python = ">=3.11"
+dependencies = [
+    "aiogram>=3.13",
+    "aiohttp>=3.10",
+    "apscheduler>=3.10",
+]
+
+[tool.uv]
+package = false

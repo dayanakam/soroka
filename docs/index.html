@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мой стиль-профиль</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300&family=Golos+Text:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EDECE9;
+  --surface:#FFFFFF;
+  --surface-2:#F6F5F3;
+  --ink:#17161A;
+  --muted:#6E6B72;
+  --faint:#9A979E;
+  --line:#D9D6D1;
+  --line-strong:#BFBBB4;
+  --accent:#6E1E32;
+  --accent-ink:#FFFFFF;
+  --accent-wash:rgba(110,30,50,.07);
+  --shadow:0 1px 2px rgba(23,22,26,.05), 0 8px 24px -16px rgba(23,22,26,.25);
+  --r:3px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131216;
+    --surface:#1B1A1F;
+    --surface-2:#232127;
+    --ink:#EFEDE8;
+    --muted:#A09CA6;
+    --faint:#76727C;
+    --line:#2E2C33;
+    --line-strong:#454249;
+    --accent:#D08496;
+    --accent-ink:#23131A;
+    --accent-wash:rgba(208,132,150,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131216;
+  --surface:#1B1A1F;
+  --surface-2:#232127;
+  --ink:#EFEDE8;
+  --muted:#A09CA6;
+  --faint:#76727C;
+  --line:#2E2C33;
+  --line-strong:#454249;
+  --accent:#D08496;
+  --accent-ink:#23131A;
+  --accent-wash:rgba(208,132,150,.12);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+img{max-width:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Golos Text","Helvetica Neue",Arial,sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:104px;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+
+/* ---------- typography ---------- */
+.eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);
+}
+h1{
+  font-family:Cormorant,Georgia,serif;
+  font-weight:300;font-size:clamp(40px,7vw,68px);line-height:.98;
+  letter-spacing:-.015em;margin:14px 0 0;text-wrap:balance;
+}
+h1 em{font-style:italic;color:var(--accent)}
+h2{
+  font-family:Cormorant,Georgia,serif;
+  font-weight:400;font-size:clamp(26px,3.4vw,34px);line-height:1.05;
+  letter-spacing:-.01em;margin:0;
+}
+.lede{color:var(--muted);max-width:56ch;margin:18px 0 0;font-size:16px}
+
+/* ---------- header ---------- */
+header{
+  border-bottom:1px solid var(--line);
+  padding:48px 0 40px;
+  margin-bottom:8px;
+}
+.brandline{
+  display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;
+  margin-top:28px;
+}
+.brandline span{
+  font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);
+}
+.brandline span::after{content:"";}
+
+/* ---------- section scaffolding ---------- */
+section{padding:44px 0;border-bottom:1px solid var(--line)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.sec-note{color:var(--muted);font-size:13px;max-width:44ch;margin:10px 0 0}
+.counter{
+  font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.counter.full{color:var(--faint)}
+
+/* ---------- style grid ---------- */
+.styles{
+  display:grid;gap:20px 18px;margin-top:28px;
+  grid-template-columns:repeat(auto-fill,minmax(192px,1fr));
+}
+.style{display:flex;flex-direction:column;gap:8px}
+.pick{
+  position:relative;display:flex;flex-direction:column;text-align:left;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:0;cursor:pointer;color:inherit;font:inherit;overflow:hidden;
+  transition:border-color .18s, transform .18s, box-shadow .18s;
+}
+.pick:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line-strong)}
+.pick:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.styles.at-max .pick[aria-pressed="false"]{opacity:.42}
+.styles.at-max .pick[aria-pressed="false"]:hover{opacity:.72;transform:none;box-shadow:none}
+
+.shot{display:block;aspect-ratio:3/4;overflow:hidden;background:var(--surface-2)}
+.shot img{width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.96);transition:transform .35s ease}
+.pick:hover .shot img{transform:scale(1.03)}
+.pick[aria-pressed="true"] .shot img{filter:none}
+
+.tick{
+  position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;
+  background:var(--accent);color:var(--accent-ink);
+  display:grid;place-items:center;font-size:13px;font-weight:600;
+  transform:scale(.4);opacity:0;transition:transform .18s, opacity .18s;
+  box-shadow:0 1px 6px rgba(0,0,0,.25);
+}
+.pick[aria-pressed="true"] .tick{transform:scale(1);opacity:1}
+
+.meta{padding:13px 13px 15px;display:flex;flex-direction:column;gap:6px;flex:1}
+.nm{
+  font-family:Cormorant,Georgia,serif;font-weight:500;font-size:23px;
+  line-height:1.02;letter-spacing:-.005em;display:block;
+}
+.keys{font-size:12.5px;color:var(--muted);line-height:1.38}
+
+.credit{
+  display:block;text-decoration:none;color:var(--muted);
+  font-size:11.5px;line-height:1.4;padding:0 2px;
+  border-left:2px solid var(--line);padding-left:9px;
+}
+.credit:hover{color:var(--ink);border-left-color:var(--accent)}
+.credit:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.credit .cb{font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);font-size:10.5px}
+.credit .cp{display:block;margin-top:3px;font-variant-numeric:tabular-nums}
+.credit .cp b{font-weight:600;color:var(--ink)}
+.credit .cp s{opacity:.6;margin-left:4px}
+.credit .cp em{font-style:normal;color:var(--accent);font-weight:600;margin-left:6px}
+
+/* ---------- chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.chip{
+  font:inherit;font-size:13.5px;color:inherit;cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:100px;padding:7px 15px;
+  transition:background .15s,border-color .15s,color .15s;
+}
+.chip:hover{border-color:var(--line-strong)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip.ghost[aria-pressed="true"]{background:var(--accent-wash);color:var(--accent);border-color:var(--accent)}
+
+/* ---------- sizes ---------- */
+.fields{display:grid;gap:26px;margin-top:26px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.field > .label{
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);display:block;margin-bottom:10px;
+}
+.field .chips{margin-top:0}
+.field .chip{padding:6px 13px;font-variant-numeric:tabular-nums}
+
+/* ---------- budget ---------- */
+.budget{margin-top:26px;max-width:460px}
+.budget input[type=range]{display:block}
+.budget #budMax{margin-top:2px}
+.budget .row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.budget .val{
+  font-family:Cormorant,Georgia,serif;font-size:30px;font-weight:400;
+  font-variant-numeric:tabular-nums;line-height:1;
+}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;background:transparent;height:22px;margin:0;
+}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line-strong);border-radius:2px}
+input[type=range]::-moz-range-track{height:2px;background:var(--line-strong);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--accent);margin-top:-8px;cursor:grab;border:none;
+}
+input[type=range]::-moz-range-thumb{
+  width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:grab;border:none;
+}
+input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.scale{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* ---------- veto ---------- */
+.veto .chip[aria-pressed="true"]{
+  background:transparent;color:var(--ink);border-color:var(--ink);
+  text-decoration:line-through;text-decoration-color:var(--accent);text-decoration-thickness:1.5px;
+}
+
+/* ---------- summary bar ---------- */
+.bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:var(--surface);border-top:1px solid var(--line);
+  box-shadow:0 -8px 24px -20px rgba(0,0,0,.5);
+}
+.bar .wrap{display:flex;align-items:center;gap:20px;padding-top:14px;padding-bottom:14px}
+.digest{flex:1;min-width:0;font-size:12.5px;color:var(--muted);line-height:1.45}
+.digest b{color:var(--ink);font-weight:500}
+.save{
+  font:inherit;font-size:14px;font-weight:500;white-space:nowrap;
+  background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);
+  border-radius:100px;padding:11px 26px;cursor:pointer;
+  transition:opacity .15s;
+}
+.save:hover{opacity:.88}
+.save:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.save[disabled]{opacity:.4;cursor:not-allowed}
+.status{font-size:12px;color:var(--faint);white-space:nowrap}
+.status.ok{color:var(--accent)}
+
+footer{padding:36px 0 8px;color:var(--faint);font-size:12.5px;max-width:62ch}
+
+@media (max-width:640px){
+  .styles{grid-template-columns:repeat(2,1fr);gap:16px 12px}
+  .bar .wrap{gap:12px;flex-wrap:wrap}
+  .digest{order:2;flex-basis:100%}
+  header{padding:34px 0 30px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Анкета вкуса · шаг за шагом</p>
+    <h1>Соберём твой<br><em>стиль-профиль</em></h1>
+    <p class="lede">По этим ответам бот будет отбирать новинки и скидки — и присылать только то,
+      что попадает в твой вкус, размер и бюджет. Всё можно поменять позже — кнопка <b>«Мой вкус»</b> в боте.</p>
+    <div class="brandline" id="brandline"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">01 — направление</p>
+        <h2>Что тебе близко?</h2>
+      </div>
+      <p class="counter" id="styleCount">Выбрано 0 из 5</p>
+    </div>
+    <p class="sec-note">Выбери от трёх до пяти. Под каждым стилем — реальная вещь твоих брендов
+      с Wildberries прямо сейчас, чтобы было видно, что именно бот считает этим стилем.</p>
+    <div class="styles" id="styles"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">02 — категории</p>
+        <h2>Что показывать</h2>
+      </div>
+      <p class="counter" id="catCount"></p>
+    </div>
+    <p class="sec-note">Сейчас включено всё. Сними то, что тебе не нужно — эти посты просто не придут.</p>
+    <div class="chips" id="cats"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">03 — размеры</p>
+        <h2>Твои параметры</h2>
+      </div>
+    </div>
+    <p class="sec-note">Бот проверяет наличие именно твоего размера — вещи, которых в нём уже нет, в подборку не попадут.</p>
+    <div class="fields" id="sizes"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">04 — деньги</p>
+        <h2>Комфортный бюджет</h2>
+      </div>
+    </div>
+    <p class="sec-note">Нижняя граница отсекает подозрительно дешёвое, верхняя — то, что точно не купишь. Сдвинь верхний ползунок вправо до упора, если потолка нет.</p>
+    <div class="field budget">
+      <div class="row">
+        <span class="label" style="margin:0">Цена за вещь</span>
+        <span class="val" id="valRange"></span>
+      </div>
+      <input type="range" id="budMin" min="0" max="60000" step="500" value="1500"
+             aria-label="Нижняя граница бюджета, рублей">
+      <input type="range" id="budMax" min="0" max="60000" step="500" value="25000"
+             aria-label="Верхняя граница бюджета, рублей">
+      <div class="scale"><span>0 ₽</span><span>60 000 ₽ и выше</span></div>
+    </div>
+    <div class="field" style="margin-top:32px">
+      <span class="label">Что считать выгодным</span>
+      <div class="chips" id="disc"></div>
+    </div>
+  </section>
+
+  <section class="veto" style="border-bottom:none">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">05 — стоп-лист</p>
+        <h2>Не присылать никогда</h2>
+      </div>
+    </div>
+    <p class="sec-note">Необязательно, но экономит нервы. Отмеченное бот будет отфильтровывать жёстко.</p>
+    <div class="chips" id="veto"></div>
+  </section>
+
+  <footer>
+    Ответы уходят прямо боту через Telegram — страница ничего никуда не отправляет сама.
+    Фото в карточках — реальные товары Mango, Befree, EKONIKA и Calzedonia с Wildberries.
+  </footer>
+</main>
+
+<div class="bar">
+  <div class="wrap">
+    <p class="digest" id="digest"></p>
+    <span class="status" id="status"></span>
+    <button class="save" id="save">Сохранить профиль</button>
+  </div>
+</div>
+
+<script>
+const BRANDS = ["Mango","Lime","Nume","Befree","Econika","Calzedonia"];
+
+const STYLES = [
+ {
+  "id": "minimal",
+  "name": "Минимализм",
+  "keys": "чистая линия, монохром, ноль декора — качество ткани вместо деталей",
+  "img": "img/minimal.webp",
+  "ex": {
+   "brand": "Mango",
+   "name": "Прямые брюки из струящейся ткани \"EVANS\"",
+   "price": 1679,
+   "old": 4799,
+   "discount": 65,
+   "url": "https://www.wildberries.ru/catalog/441252998/detail.aspx",
+   "sizes": [
+    "S",
+    "XS"
+   ],
+   "rating": 5
+  }
+ },
+ {
+  "id": "quiet",
+  "name": "Тихая роскошь",
+  "keys": "дорогая классика без логотипов: шерсть, кашемир, беж и тёмно-синий",
+  "img": "img/quiet.webp",
+  "ex": {
+   "brand": "Mango",
+   "name": "Пальто",
+   "price": 10199,
+   "old": 19999,
+   "discount": 49,
+   "url": "https://www.wildberries.ru/catalog/168326890/detail.aspx",
+   "sizes": [
+    "XS"
+   ],
+   "rating": 4.6
+  }
+ },
+ {
+  "id": "office",
+  "name": "Офисный",
+  "keys": "жилеты, костюмные брюки, рубашки — строгая геометрия",
+  "img": "img/office.webp",
+  "ex": {
+   "brand": "Mango",
+   "name": "Жилет костюмный из струящейся ткани MIRE",
+   "price": 3239,
+   "old": 8999,
+   "discount": 64,
+   "url": "https://www.wildberries.ru/catalog/441226836/detail.aspx",
+   "sizes": [
+    "M",
+    "S",
+    "XS"
+   ],
+   "rating": 4.3
+  }
+ },
+ {
+  "id": "smart",
+  "name": "Smart casual",
+  "keys": "пиджак с джинсами: полуформально и на работу, и на ужин",
+  "img": "img/smart.webp",
+  "ex": {
+   "brand": "Befree",
+   "name": "Пиджак приталенный костюмный с вискозой школьный",
+   "price": 3489,
+   "old": 6091,
+   "discount": 43,
+   "url": "https://www.wildberries.ru/catalog/1136561549/detail.aspx",
+   "sizes": [
+    "S/170",
+    "XS/170"
+   ],
+   "rating": 4.8
+  }
+ },
+ {
+  "id": "casual",
+  "name": "Кэжуал",
+  "keys": "джинсы, футболки, кроссовки — нейтральная база и удобство",
+  "img": "img/casual.webp",
+  "ex": {
+   "brand": "Befree",
+   "name": "Джинсы прямые классические со средней посадкой",
+   "price": 1085,
+   "old": 5999,
+   "discount": 82,
+   "url": "https://www.wildberries.ru/catalog/733931410/detail.aspx",
+   "sizes": [
+    "M/170"
+   ],
+   "rating": 5
+  }
+ },
+ {
+  "id": "street",
+  "name": "Streetwear",
+  "keys": "оверсайз, худи и бомберы, многослойность, крупный силуэт",
+  "img": "img/street.webp",
+  "ex": {
+   "brand": "Befree",
+   "name": "Кардиган оверсайз на молнии вязаный с вышивкой",
+   "price": 5715,
+   "old": 10196,
+   "discount": 44,
+   "url": "https://www.wildberries.ru/catalog/1454749448/detail.aspx",
+   "sizes": [
+    "L/170"
+   ],
+   "rating": 5
+  }
+ },
+ {
+  "id": "athleisure",
+  "name": "Спорт-шик",
+  "keys": "легинсы, трикотаж, кроссовки — спорт, который носят в город",
+  "img": "img/athleisure.webp",
+  "ex": {
+   "brand": "calzedonia",
+   "name": "Леггинсы плотные колготы теплые с термоэффектом",
+   "price": 5111,
+   "old": 7900,
+   "discount": 35,
+   "url": "https://www.wildberries.ru/catalog/735137900/detail.aspx",
+   "sizes": [
+    "L",
+    "M",
+    "S",
+    "XL",
+    "XS"
+   ],
+   "rating": 4
+  }
+ },
+ {
+  "id": "romantic",
+  "name": "Романтический",
+  "keys": "кружево, воланы, шёлк, пастель и мелкий цветок",
+  "img": "img/romantic.webp",
+  "ex": {
+   "brand": "Mango",
+   "name": "Платье кружевное с разрезом BLANCHI",
+   "price": 5615,
+   "old": 17999,
+   "discount": 69,
+   "url": "https://www.wildberries.ru/catalog/775572146/detail.aspx",
+   "sizes": [
+    "XS"
+   ],
+   "rating": 5
+  }
+ },
+ {
+  "id": "ballet",
+  "name": "Балеткор",
+  "keys": "балетки, запах, тонкий трикотаж, пудровая гамма",
+  "img": "img/ballet.webp",
+  "ex": {
+   "brand": "EKONIKA",
+   "name": "Балетки Мэри Джейн",
+   "price": 10994,
+   "old": 19990,
+   "discount": 45,
+   "url": "https://www.wildberries.ru/catalog/670652817/detail.aspx",
+   "sizes": [
+    "37"
+   ],
+   "rating": 5
+  }
+ },
+ {
+  "id": "black",
+  "name": "Total black",
+  "keys": "монохром, чёткий силуэт, кожа и плотные ткани",
+  "img": "img/black.webp",
+  "ex": {
+   "brand": "EKONIKA",
+   "name": "Ботинки демисезонные",
+   "price": 16893,
+   "old": 25990,
+   "discount": 35,
+   "url": "https://www.wildberries.ru/catalog/455913763/detail.aspx",
+   "sizes": [
+    "36",
+    "39",
+    "40"
+   ],
+   "rating": 5
+  }
+ },
+ {
+  "id": "grunge",
+  "name": "Гранж",
+  "keys": "фланель в клетку, потёртый деним, грубая обувь",
+  "img": "img/grunge.webp",
+  "ex": {
+   "brand": "Befree",
+   "name": "Рубашка прямая в клетку",
+   "price": 1183,
+   "old": 4699,
+   "discount": 75,
+   "url": "https://www.wildberries.ru/catalog/832164163/detail.aspx",
+   "sizes": [
+    "XS/170"
+   ],
+   "rating": 4.9
+  }
+ },
+ {
+  "id": "boho",
+  "name": "Бохо",
+  "keys": "макси-длина, свободный крой, этнические мотивы, терракота",
+  "img": "img/boho.webp",
+  "ex": {
+   "brand": "Befree",
+   "name": "Юбка прямая макси хлопковая с разрезом летняя",
+   "price": 1025,
+   "old": 1792,
+   "discount": 43,
+   "url": "https://www.wildberries.ru/catalog/912771418/detail.aspx",
+   "sizes": [
+    "XS/170"
+   ],
+   "rating": 4.9
+  }
+ },
+ {
+  "id": "preppy",
+  "name": "Преппи",
+  "keys": "кардиганы, плиссе, поло и клетка — аккуратная классика",
+  "img": "img/preppy.webp",
+  "ex": {
+   "brand": "Mango",
+   "name": "Кардиган с отложным воротником COPENH",
+   "price": 1612,
+   "old": 4799,
+   "discount": 66,
+   "url": "https://www.wildberries.ru/catalog/797992973/detail.aspx",
+   "sizes": [
+    "XS"
+   ],
+   "rating": 4.6
+  }
+ },
+ {
+  "id": "denim",
+  "name": "Деним",
+  "keys": "джинсовки, прямые джинсы, деним на дениме",
+  "img": "img/denim.webp",
+  "ex": {
+   "brand": "Mango",
+   "name": "Жакет джинсовый куртка с застежками клевантами",
+   "price": 5599,
+   "old": 6999,
+   "discount": 20,
+   "url": "https://www.wildberries.ru/catalog/1143692634/detail.aspx",
+   "sizes": [
+    "S"
+   ],
+   "rating": 4.8
+  }
+ },
+ {
+  "id": "utility",
+  "name": "Утилитарный",
+  "keys": "хаки, карго-карманы, куртки-рубашки, функциональность",
+  "img": "img/utility.webp",
+  "ex": {
+   "brand": "Befree",
+   "name": "Куртка весенняя демисезонная короткая стеганая без капюшона",
+   "price": 2591,
+   "old": 6899,
+   "discount": 62,
+   "url": "https://www.wildberries.ru/catalog/790918765/detail.aspx",
+   "sizes": [
+    "XL/170"
+   ],
+   "rating": 4.8
+  }
+ },
+ {
+  "id": "glam",
+  "name": "Вечерний",
+  "keys": "атлас, пайетки, открытые линии — для выхода",
+  "img": "img/glam.webp",
+  "ex": {
+   "brand": "Mango",
+   "name": "Платье",
+   "price": 2759,
+   "old": 5999,
+   "discount": 54,
+   "url": "https://www.wildberries.ru/catalog/163359251/detail.aspx",
+   "sizes": [
+    "L",
+    "M",
+    "S"
+   ],
+   "rating": 4.4
+  }
+ }
+];
+
+const CATS = [
+  ["tops","Топы, рубашки, блузы"],
+  ["bottoms","Брюки, джинсы, юбки"],
+  ["dresses","Платья"],
+  ["outerwear","Верхняя одежда"],
+  ["knit","Трикотаж"],
+  ["shoes","Обувь"],
+  ["bags","Сумки"],
+  ["accessories","Аксессуары"],
+  ["lingerie","Бельё и чулки"],
+  ["swim","Купальники"]
+];
+
+const SIZE_FIELDS = [
+  { id:"top",    label:"Верх",  opts:["XS","S","M","L","XL","XXL"], def:"M" },
+  { id:"bottom", label:"Низ (RU)", opts:["40","42","44","46","48","50","52"], def:"46" },
+  { id:"jeans",  label:"Джинсы (W)", opts:["25","26","27","28","29","30","31","32"], def:"28" },
+  { id:"shoes",  label:"Обувь (EU)", opts:["35","36","37","38","39","40","41"], def:"38" }
+];
+
+const DISCOUNTS = [
+  ["any","Просто красиво и по цене"],
+  ["20","Скидка от 20%"],
+  ["30","Скидка от 30%"],
+  ["50","Скидка от 50%"]
+];
+
+const VETO = ["Мини","Каблук выше 7 см","Логомания","Стразы и пайетки","Леопард","Неон",
+  "Розовый","Прозрачное","Мех и эко-мех","Синтетика в базе","Короткий топ","Высокая посадка"];
+
+const MAX_STYLES = 5;
+
+const state = {
+  styles: [],
+  brands: BRANDS.slice(),
+  categories: CATS.map(c => c[0]),
+  sizes: { top:"M", bottom:"46", jeans:"28", shoes:"38" },
+  budgetMin: 1500,
+  budgetMax: 25000,
+  minDiscount: "any",
+  veto: []
+};
+
+const $ = id => document.getElementById(id);
+const rub = n => n.toLocaleString("ru-RU") + " ₽";
+
+function toggle(list, value){
+  const i = list.indexOf(value);
+  if (i === -1) list.push(value); else list.splice(i, 1);
+}
+
+/* ---------- build: brands ---------- */
+function renderBrands(){
+  $("brandline").innerHTML = BRANDS
+    .map(b => `<span>${b}</span>`).join('<span aria-hidden="true">·</span>');
+}
+
+/* ---------- build: styles ---------- */
+function buildStyles(){
+  $("styles").innerHTML = STYLES.map(s => {
+    const e = s.ex, off = e.old ? `<s>${rub(e.old)}</s>` : "";
+    return `
+    <article class="style">
+      <button class="pick" type="button" data-id="${s.id}" aria-pressed="false">
+        <span class="shot"><img src="${s.img}" alt="" loading="lazy" decoding="async"></span>
+        <span class="tick" aria-hidden="true">&#10003;</span>
+        <span class="meta">
+          <span class="nm">${s.name}</span>
+          <span class="keys">${s.keys}</span>
+        </span>
+      </button>
+      <a class="credit" href="${e.url}" target="_blank" rel="noopener noreferrer">
+        <span class="cb">${e.brand}</span> ${e.name}
+        <span class="cp"><b>${rub(e.price)}</b> ${off}${e.discount ? `<em>&minus;${e.discount}%</em>` : ""}</span>
+      </a>
+    </article>`;
+  }).join("");
+
+  $("styles").addEventListener("click", e => {
+    const btn = e.target.closest(".pick");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!state.styles.includes(id) && state.styles.length >= MAX_STYLES) return;
+    toggle(state.styles, id);
+    paint();
+  });
+}
+
+/* ---------- build: chip groups ---------- */
+function buildChips(host, items, isOn, onPick, ghost){
+  host.innerHTML = items.map(([val, label]) =>
+    `<button class="chip${ghost ? " ghost" : ""}" type="button" data-v="${val}" aria-pressed="${isOn(val)}">${label}</button>`
+  ).join("");
+  host.addEventListener("click", e => {
+    const c = e.target.closest(".chip");
+    if (!c) return;
+    onPick(c.dataset.v);
+    paint();
+  });
+}
+
+function buildSizes(){
+  $("sizes").innerHTML = SIZE_FIELDS.map(f => `
+    <div class="field">
+      <span class="label">${f.label}</span>
+      <div class="chips" data-size="${f.id}">
+        ${f.opts.map(o => `<button class="chip" type="button" data-v="${o}" aria-pressed="false">${o}</button>`).join("")}
+      </div>
+    </div>`).join("");
+
+  $("sizes").addEventListener("click", e => {
+    const c = e.target.closest(".chip");
+    if (!c) return;
+    state.sizes[c.parentElement.dataset.size] = c.dataset.v;
+    paint();
+  });
+}
+
+/* ---------- paint ---------- */
+function paint(){
+  // styles
+  const atMax = state.styles.length >= MAX_STYLES;
+  $("styles").classList.toggle("at-max", atMax);
+  $("styles").querySelectorAll(".pick").forEach(b =>
+    b.setAttribute("aria-pressed", state.styles.includes(b.dataset.id)));
+  const sc = $("styleCount");
+  sc.textContent = `Выбрано ${state.styles.length} из ${MAX_STYLES}`;
+  sc.classList.toggle("full", atMax);
+
+  // categories
+  $("cats").querySelectorAll(".chip").forEach(c =>
+    c.setAttribute("aria-pressed", state.categories.includes(c.dataset.v)));
+  $("catCount").textContent = `${state.categories.length} из ${CATS.length} включено`;
+
+  // sizes
+  $("sizes").querySelectorAll(".chips").forEach(group => {
+    const cur = state.sizes[group.dataset.size];
+    group.querySelectorAll(".chip").forEach(c =>
+      c.setAttribute("aria-pressed", c.dataset.v === cur));
+  });
+
+  // budget
+  $("budMin").value = state.budgetMin;
+  $("budMax").value = state.budgetMax;
+  $("valRange").textContent = state.budgetMax >= 60000
+    ? "от " + rub(state.budgetMin)
+    : rub(state.budgetMin) + " — " + rub(state.budgetMax);
+  $("disc").querySelectorAll(".chip").forEach(c =>
+    c.setAttribute("aria-pressed", c.dataset.v === state.minDiscount));
+
+  // veto
+  $("veto").querySelectorAll(".chip").forEach(c =>
+    c.setAttribute("aria-pressed", state.veto.includes(c.dataset.v)));
+
+  // digest
+  const names = state.styles.map(id => STYLES.find(s => s.id === id).name);
+  const styleText = names.length ? `<b>${names.join(" · ")}</b>` : "<b>стили не выбраны</b>";
+  const d = DISCOUNTS.find(x => x[0] === state.minDiscount)[1];
+  $("digest").innerHTML =
+    `${styleText} · ${state.categories.length} категорий · ` +
+    `размеры <b>${state.sizes.top} / ${state.sizes.bottom} / ${state.sizes.shoes}</b> · ` +
+    `<b>${state.budgetMax >= 60000 ? "от " + rub(state.budgetMin) : rub(state.budgetMin) + "–" + rub(state.budgetMax)}</b> · ${d.toLowerCase()}` +
+    (state.veto.length ? ` · стоп-лист: <b>${state.veto.length}</b>` : "");
+
+  const ready = state.styles.length >= 1;
+  $("save").disabled = !ready;
+  if (tg){
+    ready ? tg.MainButton.enable() : tg.MainButton.disable();
+    tg.MainButton.setText(ready
+      ? `Сохранить · ${state.styles.length} ${state.styles.length === 1 ? "стиль" : "стиля"}`
+      : "Выбери стиль");
+  }
+}
+
+/* ---------- сохранение: напрямую через Telegram ---------- */
+/* Страница статическая: она не ходит ни на какой сервер.
+   Текущий профиль прилетает в адресной строке, ответ уходит через
+   Telegram.WebApp.sendData — его получает сам бот. */
+const tg = window.Telegram && window.Telegram.WebApp;
+
+function say(msg, ok){
+  const el = $("status");
+  el.textContent = msg;
+  el.classList.toggle("ok", !!ok);
+}
+
+function readIncoming(){
+  const m = location.hash.match(/p=([A-Za-z0-9_-]+)/);
+  if (!m) return null;
+  try {
+    const json = atob(m[1].replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decodeURIComponent(escape(json)));
+  } catch (e) { return null; }
+}
+
+let saving = false;
+function save(){
+  if (saving) return;
+  if (state.styles.length < 1){ say("Выбери хотя бы один стиль"); return; }
+  if (!tg || !tg.sendData){
+    say("Эта страница работает только внутри Telegram");
+    return;
+  }
+  saving = true;
+  say("Отправляю…");
+  try {
+    tg.sendData(JSON.stringify({
+      styles: state.styles,
+      categories: state.categories,
+      sizes: state.sizes,
+      budgetMin: state.budgetMin,
+      budgetMax: state.budgetMax,
+      minDiscount: state.minDiscount,
+      veto: state.veto
+    }));
+    // Telegram закроет окно сам, как только заберёт данные
+  } catch (e) {
+    saving = false;
+    say("Не удалось отправить");
+  }
+}
+
+function connect(){
+  const saved = readIncoming();
+  if (!saved) return;
+  if (Array.isArray(saved.styles))     state.styles     = saved.styles.slice(0, MAX_STYLES);
+  if (Array.isArray(saved.categories)) state.categories = saved.categories;
+  if (Array.isArray(saved.veto))       state.veto       = saved.veto;
+  if (saved.sizes) Object.assign(state.sizes, saved.sizes);
+  if (typeof saved.budgetMin === "number") state.budgetMin = saved.budgetMin;
+  if (typeof saved.budgetMax === "number") state.budgetMax = saved.budgetMax;
+  if (typeof saved.minDiscount === "string") state.minDiscount = saved.minDiscount;
+  paint();
+  if (state.styles.length) say("Твой прошлый выбор подставлен");
+}
+
+/* ---------- Telegram ---------- */
+if (tg){
+  tg.ready();
+  tg.expand();
+  const theme = () => document.documentElement.setAttribute("data-theme",
+    tg.colorScheme === "dark" ? "dark" : "light");
+  theme();
+  tg.onEvent("themeChanged", theme);
+  tg.MainButton.setText("Сохранить профиль");
+  tg.MainButton.onClick(save);
+  tg.MainButton.show();
+} else {
+  say("Открой через бота — отсюда сохранять некуда");
+}
+
+/* ---------- init ---------- */
+renderBrands();
+buildStyles();
+buildSizes();
+buildChips($("cats"), CATS, v => state.categories.includes(v), v => toggle(state.categories, v));
+buildChips($("disc"), DISCOUNTS, v => v === state.minDiscount, v => { state.minDiscount = v; }, true);
+buildChips($("veto"), VETO.map(v => [v, v]), v => state.veto.includes(v), v => toggle(state.veto, v));
+
+$("budMin").addEventListener("input", e => {
+  state.budgetMin = Math.min(+e.target.value, state.budgetMax - 500);
+  paint();
+});
+$("budMax").addEventListener("input", e => {
+  state.budgetMax = Math.max(+e.target.value, state.budgetMin + 500);
+  paint();
+});
+$("save").addEventListener("click", save);
+
+paint();
+connect();
+</script>
+</body>
+</html>
