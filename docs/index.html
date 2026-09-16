@@ -130,6 +130,9 @@ input[type=range]::-moz-range-thumb{
 
 /* низ */
 .bar{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line)}
+/* внутри Telegram кнопку рисует сам Telegram — свою прячем, чтобы не было двух */
+body.in-tg .bar{display:none}
+body.in-tg{padding-bottom:24px}
 .bar .wrap{display:flex;align-items:center;gap:12px;padding-top:12px;padding-bottom:12px}
 .status{flex:1;font-size:13px;color:var(--muted);min-width:0}
 .save{
@@ -720,6 +723,11 @@ function say(msg, ok){
   el.classList.toggle("ok", !!ok);
 }
 
+function warn(msg){
+  say(msg);
+  if (tg && tg.showAlert) tg.showAlert(msg);   // строка статуса в Telegram скрыта
+}
+
 function readIncoming(){
   /* Компактный формат из бота: s=стили&c=маска категорий&z=размеры
      &b=бюджет&d=порог скидки&v=маска стоп-листа.
@@ -758,9 +766,9 @@ function readIncoming(){
 let saving = false;
 function save(){
   if (saving) return;
-  if (state.styles.length < 1){ say("Выбери стиль"); return; }
+  if (state.styles.length < 1){ warn("Выбери стиль"); return; }
   if (!tg || !tg.sendData){
-    say("Только внутри Telegram");
+    warn("Эта страница работает только внутри Telegram");
     return;
   }
   saving = true;
@@ -778,7 +786,7 @@ function save(){
     // Telegram закроет окно сам, как только заберёт данные
   } catch (e) {
     saving = false;
-    say("Не удалось отправить");
+    warn("Не удалось отправить. Попробуй ещё раз.");
   }
 }
 
@@ -798,6 +806,7 @@ function connect(){
 
 /* ---------- Telegram ---------- */
 if (tg){
+  document.body.classList.add("in-tg");
   tg.ready();
   tg.expand();
   const theme = () => document.documentElement.setAttribute("data-theme",
