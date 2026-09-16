@@ -44,9 +44,10 @@ async def main() -> None:
             "Нет BOT_TOKEN. Создай бота у @BotFather, скопируй .env.example в .env "
             "и впиши токен."
         )
-    if not config.PUBLIC_URL:
-        log.warning("PUBLIC_URL пуст — кнопка мини-аппа не откроется. "
-                    "Нужен публичный HTTPS-адрес.")
+    if config.app_url():
+        log.info("анкета: %s", config.app_url())
+    else:
+        log.warning("адрес анкеты не задан — кнопка «Мой вкус» запустит опрос в чате")
 
     db.init()
     runner = await start_server()

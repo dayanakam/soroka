@@ -29,7 +29,7 @@ MINIAPP_DIR = ROOT / "docs"
 
 # Публичный адрес анкеты. Страница статическая, поэтому может жить где угодно —
 # например на GitHub Pages. Если пусто, берём собственный сервер.
-MINIAPP_URL = os.environ.get("MINIAPP_URL", "").rstrip("/")
+MINIAPP_URL = os.environ.get("MINIAPP_URL", "")
 
 
 def app_url() -> str:
