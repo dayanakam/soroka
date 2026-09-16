@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Безопасно записывает токен бота в .env.
+"""Безопасно записывает ключи в .env.
 
-Ключ берётся из буфера обмена: скопируй его в Telegram и запусти скрипт.
-Ничего печатать не нужно. Токен не появляется на экране, не попадает
-в историю команд и никуда не отправляется, кроме самого Telegram —
-для проверки, что ключ рабочий.
+Ключ берётся из буфера обмена: скопируй его и запусти скрипт. Ничего
+печатать не нужно. Ключ не появляется на экране, не попадает в историю
+команд и никуда не отправляется, кроме самого сервиса — для проверки,
+что он рабочий.
 
-    python set_token.py
+    python set_token.py           токен бота от @BotFather
+    python set_token.py pexels    ключ Pexels для обложек стилей
 """
 import getpass
 import json
@@ -18,6 +19,7 @@ import urllib.request
 from pathlib import Path
 
 TOKEN_RE = re.compile(r"\d{6,}:[\w-]{30,}")
+PEXELS_RE = re.compile(r"[A-Za-z0-9]{40,}")
 
 ENV = Path(__file__).resolve().parent / ".env"
 EXAMPLE = Path(__file__).resolve().parent / ".env.example"
@@ -43,14 +45,14 @@ def put(lines: list[str], key: str, value: str) -> list[str]:
     return out
 
 
-def from_clipboard() -> str | None:
-    """Токен из буфера обмена. Ничего не печатаем — только факт находки."""
+def from_clipboard(pattern: re.Pattern) -> str | None:
+    """Ключ из буфера обмена. Ничего не печатаем — только факт находки."""
     try:
         out = subprocess.run(["pbpaste"], capture_output=True, text=True,
                              timeout=5).stdout
     except Exception:
         return None
-    m = TOKEN_RE.search(out or "")
+    m = pattern.search(out or "")
     return m.group(0) if m else None
 
 
@@ -61,7 +63,7 @@ def clear_clipboard() -> None:
         pass
 
 
-def check(token: str) -> dict:
+def check_telegram(token: str) -> dict:
     url = f"https://api.telegram.org/bot{token}/getMe"
     try:
         with urllib.request.urlopen(url, timeout=20) as r:
@@ -75,37 +77,60 @@ def check(token: str) -> dict:
         raise SystemExit(f"Не достучались до Telegram: {type(e).__name__}")
 
 
-def main() -> None:
-    token = from_clipboard()
-    if token:
-        print(f"Нашла токен в буфере обмена: бот №{token.split(':')[0]}, "
-              f"секретная часть скрыта.")
-    else:
-        print("В буфере обмена токена нет. Скопируй его в Telegram и запусти снова,")
-        print("либо вставь сюда вручную — ввод скрыт, на экране ничего не появится.\n")
-        token = getpass.getpass("Токен: ").strip().strip('"').strip("'")
-
-    if not token:
-        raise SystemExit("Пусто — ничего не записала.")
-    if not TOKEN_RE.fullmatch(token):
+def check_pexels(key: str) -> dict:
+    req = urllib.request.Request(
+        "https://api.pexels.com/v1/search?query=coat&per_page=1",
+        headers={"Authorization": key})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            data = json.loads(r.read())
+            return {"снимков в базе по пробному запросу": data.get("total_results")}
+    except urllib.error.HTTPError as e:
         raise SystemExit(
-            f"Не похоже на токен: {len(token)} символов, "
-            f"двоеточие {'есть' if ':' in token else 'отсутствует'}. "
-            "Ожидается «цифры:буквы»."
-        )
+            f"Pexels отверг ключ (HTTP {e.code}). "
+            "Скопировался не целиком или ключ не тот — попробуй ещё раз.")
+    except Exception as e:
+        raise SystemExit(f"Не достучались до Pexels: {type(e).__name__}")
 
-    me = check(token)
 
-    lines = put(read_lines(), "BOT_TOKEN", token)
+SERVICES = {
+    "bot": ("BOT_TOKEN", TOKEN_RE, check_telegram,
+            "токен бота от @BotFather", "«цифры:буквы»"),
+    "pexels": ("PEXELS_API_KEY", PEXELS_RE, check_pexels,
+               "ключ Pexels", "длинная строка букв и цифр"),
+}
+
+
+def main() -> None:
+    which = (sys.argv[1] if len(sys.argv) > 1 else "bot").lower()
+    if which not in SERVICES:
+        raise SystemExit(f"Не знаю сервис {which!r}. Доступны: {', '.join(SERVICES)}")
+    env_key, pattern, verify, human, shape = SERVICES[which]
+
+    value = from_clipboard(pattern)
+    if value:
+        print(f"Нашла в буфере обмена {human}, показывать не буду.")
+    else:
+        print(f"В буфере обмена нет ключа. Скопируй {human} и запусти снова,")
+        print("либо вставь сюда вручную — ввод скрыт, на экране ничего не появится.\n")
+        value = getpass.getpass("Ключ: ").strip().strip('"').strip("'")
+
+    if not value:
+        raise SystemExit("Пусто — ничего не записала.")
+    if not pattern.fullmatch(value):
+        raise SystemExit(f"Не похоже на ключ: {len(value)} символов. Ожидается {shape}.")
+
+    info = verify(value)
+
+    lines = put(read_lines(), env_key, value)
     ENV.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    ENV.chmod(0o600)  # читать может только владелец
+    ENV.chmod(0o600)
 
-    print(f"\nГотово. Telegram подтвердил бота:")
-    print(f"  имя       {me.get('first_name')}")
-    print(f"  username  @{me.get('username')}")
-    print(f"  id        {me.get('id')}")
+    print("\nПроверено, ключ рабочий:")
+    for k, v in info.items():
+        print(f"  {k:<12} {v}")
     clear_clipboard()
-    print(f"\nКлюч записан в {ENV.name}, доступ только для тебя.")
+    print(f"\nЗаписан в {ENV.name} как {env_key}, доступ только для тебя.")
     print("Буфер обмена очищен, чтобы ключ там не болтался.")
 
 

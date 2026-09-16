@@ -24,6 +24,9 @@ PORT = int(os.environ.get("PORT", 8080))
 DB_PATH = os.environ.get("DB_PATH", str(ROOT / "data" / "outfits.db"))
 TZ = os.environ.get("TZ", "Europe/Moscow")
 
+# Нужен только для fetch_covers.py — сам бот без него работает
+PEXELS_API_KEY = os.environ.get("PEXELS_API_KEY", "")
+
 # Папка docs/ — её же раздаёт GitHub Pages
 MINIAPP_DIR = ROOT / "docs"
 

@@ -5,11 +5,18 @@
 """
 import logging
 from aiogram import Bot, F, Router
-from aiogram.types import (CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup,
-                           InputMediaPhoto, Message)
+from pathlib import Path
 
-from . import db
+from aiogram.types import (CallbackQuery, FSInputFile, InlineKeyboardButton,
+                           InlineKeyboardMarkup, InputMediaPhoto, Message)
+
+from . import config, db
 from .examples import EXAMPLES
+
+try:
+    from .covers import COVERS
+except ImportError:      # обложки ещё не скачаны
+    COVERS = {}
 from .styles import CATEGORIES, STYLES, VETO_STEMS
 
 log = logging.getLogger(__name__)
@@ -58,12 +65,20 @@ def _rows(buttons: list[InlineKeyboardButton], per_row: int) -> InlineKeyboardMa
     return InlineKeyboardMarkup(inline_keyboard=grid)
 
 
-def _photo(style_id: str) -> str | None:
-    """Копий фотографий у нас нет. Первый раз отдаём ссылку на снимок WB,
-    дальше — file_id, который Telegram выдал после первой отправки."""
+def _photo(style_id: str) -> str | FSInputFile | None:
+    """Сначала file_id — Telegram уже хранит картинку и второй раз её не грузит.
+    Потом наш файл обложки. И только если его нет — ссылка на снимок WB,
+    которая может протухнуть вместе с товаром."""
     cached = db.get_file_id(f"style:{style_id}")
     if cached:
         return cached
+
+    c = COVERS.get(style_id)
+    if c:
+        path = config.MINIAPP_DIR / Path(c["file"])
+        if path.exists():
+            return FSInputFile(path)
+
     return (EXAMPLES.get(style_id) or {}).get("img")
 
 
