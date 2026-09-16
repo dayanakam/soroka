@@ -39,33 +39,40 @@ h2{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:0}
 .count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* стили: цветная плитка с повёрнутой обложкой в углу */
-.styles{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(148px,1fr))}
+.styles{display:grid;gap:8px;grid-template-columns:repeat(3,1fr)}
+@media (min-width:560px){
+  .styles{gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .pick{padding:12px;border-radius:10px}
+  .pick .nm{font-size:15px;line-height:1.15;padding-right:26px}
+}
 .pick{
   /* кнопка по умолчанию центрует содержимое — прижимаем название к верху */
   position:relative;display:flex;flex-direction:column;align-items:flex-start;
-  justify-content:flex-start;width:100%;aspect-ratio:1/1;padding:12px;
-  border:none;border-radius:10px;background:var(--c);overflow:hidden;
+  justify-content:flex-start;width:100%;aspect-ratio:1/1;padding:9px;
+  border:none;border-radius:9px;background:var(--c);overflow:hidden;
   font:inherit;color:#fff;text-align:left;cursor:pointer;
   transition:transform .12s;
 }
 .pick:active{transform:scale(.98)}
 .pick .nm{
-  position:relative;z-index:2;display:block;max-width:74%;
-  font-size:15px;font-weight:700;line-height:1.15;letter-spacing:-.01em;
+  position:relative;z-index:2;display:block;padding-right:20px;
+  font-size:12px;font-weight:700;line-height:1.12;letter-spacing:-.015em;
+  /* длинные слова переносим по слогам, а не рубим посередине */
+  hyphens:auto;overflow-wrap:break-word;
 }
 .pick .art{
-  position:absolute;right:-12px;bottom:-12px;width:47%;aspect-ratio:1;
-  border-radius:2px;overflow:hidden;transform:rotate(25deg);
-  box-shadow:0 6px 16px rgba(0,0,0,.3);
+  position:absolute;right:-7px;bottom:-7px;width:64%;aspect-ratio:1;
+  border-radius:2px;overflow:hidden;transform:rotate(20deg);
+  box-shadow:0 5px 14px rgba(0,0,0,.32);
 }
 .pick .art img{width:100%;height:100%;object-fit:cover;display:block}
 .pick[aria-pressed="true"]{box-shadow:inset 0 0 0 3px #fff}
 .pick:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .styles.at-max .pick[aria-pressed="false"]{opacity:.4}
 .tick{
-  position:absolute;top:10px;right:10px;z-index:3;width:22px;height:22px;
+  position:absolute;top:7px;right:7px;z-index:3;width:18px;height:18px;
   border-radius:50%;background:#fff;color:#111113;display:grid;place-items:center;
-  font-size:12px;transform:scale(.5);opacity:0;transition:.15s;
+  font-size:10px;transform:scale(.5);opacity:0;transition:.15s;
 }
 .pick[aria-pressed="true"] .tick{transform:scale(1);opacity:1}
 
