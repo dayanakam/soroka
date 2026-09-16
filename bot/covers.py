@@ -1,120 +1,120 @@
 """Обложки стилей: файлы в docs/img и авторы снимков.
 
-Создаётся fetch_covers.py. Снимки взяты на Pexels — их лицензия
-разрешает хранить и использовать копии, в том числе коммерчески.
+Кадры отобраны вручную под единую подачу: человек в полный рост,
+ровный фон. Лицензия Pexels разрешает хранить и использовать копии.
 """
 
 COVERS = {
  "minimal": {
-  "photo_id": 11749807,
-  "author": "Maryam  Kamavova",
-  "author_url": "https://www.pexels.com/@maryam-kamavova-205352541",
-  "page": "https://www.pexels.com/photo/woman-with-handbag-standing-on-sidewalk-11749807/",
+  "photo_id": 31679362,
+  "author": "Cromwell Ken",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/stylish-woman-in-casual-beige-outfit-portrait-31679362/",
   "file": "img/minimal.jpg"
  },
  "quiet": {
-  "photo_id": 16113402,
-  "author": "Nikola Vu",
-  "author_url": "https://www.pexels.com/@bynikolavu",
-  "page": "https://www.pexels.com/photo/woman-in-a-coat-fixing-her-hat-16113402/",
+  "photo_id": 6774574,
+  "author": "Michelle Leman",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/diverse-women-in-stylish-coats-and-socks-6774574/",
   "file": "img/quiet.jpg"
  },
  "office": {
-  "photo_id": 3609704,
-  "author": "Philip Justin Mamelic",
-  "author_url": "https://www.pexels.com/@philip-justin-mamelic-1397651",
-  "page": "https://www.pexels.com/photo/woman-in-white-blazer-sitting-on-brown-wooden-chair-3609704/",
+  "photo_id": 7203488,
+  "author": "Tima Miroshnichenko",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/woman-in-pink-blazer-and-pink-pants-7203488/",
   "file": "img/office.jpg"
  },
  "smart": {
-  "photo_id": 9883884,
-  "author": "Pelageia  Zelenina",
-  "author_url": "https://www.pexels.com/@pelageia-zelenina-58865108",
-  "page": "https://www.pexels.com/photo/well-dressed-woman-crossing-street-9883884/",
+  "photo_id": 7760002,
+  "author": "cottonbro studio",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/a-woman-in-black-blazer-and-blue-denim-jeans-7760002/",
   "file": "img/smart.jpg"
  },
  "casual": {
-  "photo_id": 20507767,
+  "photo_id": 31514678,
   "author": "Dmitriy Steinke",
-  "author_url": "https://www.pexels.com/@dmitriy-steinke-559643503",
-  "page": "https://www.pexels.com/photo/woman-showing-victory-sign-20507767/",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/stylish-young-woman-in-grey-on-black-studio-background-31514678/",
   "file": "img/casual.jpg"
  },
  "street": {
-  "photo_id": 29580867,
-  "author": "Alireza Heidarpour",
-  "author_url": "https://www.pexels.com/@ahcapture",
-  "page": "https://www.pexels.com/photo/urban-style-portrait-in-concrete-environment-29580867/",
+  "photo_id": 16982868,
+  "author": "Alina  Rossoshanska",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/smiling-model-in-an-oversized-brown-hoodie-16982868/",
   "file": "img/street.jpg"
  },
  "athleisure": {
-  "photo_id": 7787923,
-  "author": "Ivan Babydov",
-  "author_url": "https://www.pexels.com/@babydov",
-  "page": "https://www.pexels.com/photo/stylish-ethnic-woman-sitting-on-asphalt-road-in-sports-ground-7787923/",
+  "photo_id": 14571332,
+  "author": "Vika Glitter",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/boy-posing-on-white-background-14571332/",
   "file": "img/athleisure.jpg"
  },
  "romantic": {
-  "photo_id": 5606417,
-  "author": "Đạt Nguyễn",
-  "author_url": "https://www.pexels.com/@d-t-nguy-n-3781396",
-  "page": "https://www.pexels.com/photo/woman-sitting-on-grass-with-flowers-5606417/",
+  "photo_id": 11054057,
+  "author": "Christina Chekhomova",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/short-haired-woman-in-red-floral-dress-smiling-11054057/",
   "file": "img/romantic.jpg"
  },
  "ballet": {
-  "photo_id": 26698570,
-  "author": "Nur Tok",
-  "author_url": "https://www.pexels.com/@nur-tok-1105432560",
-  "page": "https://www.pexels.com/photo/little-girl-wearing-white-shoes-26698570/",
+  "photo_id": 5888585,
+  "author": "Gustavo Fring",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/portrait-of-a-ballerina-against-a-white-background-5888585/",
   "file": "img/ballet.jpg"
  },
  "black": {
-  "photo_id": 35452031,
-  "author": "Abudullah 51",
-  "author_url": "https://www.pexels.com/@abudullah-51-291932054",
-  "page": "https://www.pexels.com/photo/stylish-woman-posing-in-black-fashion-outfit-35452031/",
+  "photo_id": 20828586,
+  "author": "Andrea Musto",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/woman-in-top-and-high-heels-20828586/",
   "file": "img/black.jpg"
  },
  "grunge": {
-  "photo_id": 17812956,
-  "author": "Harsh Vardhan",
-  "author_url": "https://www.pexels.com/@hvfilmz",
-  "page": "https://www.pexels.com/photo/woman-wearing-leather-costume-on-a-street-17812956/",
+  "photo_id": 6211616,
+  "author": "Dima Valkov",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/studio-portrait-of-a-smiling-woman-in-a-leather-jacket-6211616/",
   "file": "img/grunge.jpg"
  },
  "boho": {
-  "photo_id": 16122043,
-  "author": "Wesley Davi",
-  "author_url": "https://www.pexels.com/@wesleydavi",
-  "page": "https://www.pexels.com/photo/woman-in-summer-dress-posing-in-botanical-greenhouse-16122043/",
+  "photo_id": 37347197,
+  "author": "Darkshade Photos",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/elegant-portrait-of-woman-in-traditional-fashion-37347197/",
   "file": "img/boho.jpg"
  },
  "preppy": {
-  "photo_id": 39050469,
-  "author": "Tetty Herawati",
-  "author_url": "https://www.pexels.com/@tettyheraa",
-  "page": "https://www.pexels.com/photo/stylish-woman-outdoors-in-jakarta-s-urban-setting-39050469/",
+  "photo_id": 20220083,
+  "author": "Larisa  Kruchina",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/woman-in-skirt-standing-and-leaning-on-chair-20220083/",
   "file": "img/preppy.jpg"
  },
  "denim": {
-  "photo_id": 29627658,
-  "author": "Alireza Heidarpour",
-  "author_url": "https://www.pexels.com/@ahcapture",
-  "page": "https://www.pexels.com/photo/portrait-of-young-woman-in-denim-jacket-outdoors-29627658/",
+  "photo_id": 6770025,
+  "author": "cottonbro studio",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/a-woman-wearing-denim-jacket-and-denim-skirt-6770025/",
   "file": "img/denim.jpg"
  },
  "utility": {
-  "photo_id": 15799202,
-  "author": "Godisable Jacob",
-  "author_url": "https://www.pexels.com/@godisable-jacob-226636",
-  "page": "https://www.pexels.com/photo/woman-standing-on-sidewalk-15799202/",
+  "photo_id": 8422354,
+  "author": "Pavel Danilyuk",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/stylish-woman-with-braided-hair-8422354/",
   "file": "img/utility.jpg"
  },
  "glam": {
-  "photo_id": 15523449,
-  "author": "Maksim Veter",
-  "author_url": "https://www.pexels.com/@maksim-veter-83914364",
-  "page": "https://www.pexels.com/photo/young-woman-in-a-black-dress-sitting-on-the-sofa-15523449/",
+  "photo_id": 9563069,
+  "author": "Алексей Вечерин",
+  "author_url": "",
+  "page": "https://www.pexels.com/photo/a-woman-in-gray-sleeveless-dress-9563069/",
   "file": "img/glam.jpg"
  }
 }

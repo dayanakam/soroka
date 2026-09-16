@@ -4,19 +4,19 @@
 
 | Стиль | Автор | Оригинал |
 |---|---|---|
-| Минимализм | [Maryam  Kamavova](https://www.pexels.com/@maryam-kamavova-205352541) | [снимок](https://www.pexels.com/photo/woman-with-handbag-standing-on-sidewalk-11749807/) |
-| Тихая роскошь | [Nikola Vu](https://www.pexels.com/@bynikolavu) | [снимок](https://www.pexels.com/photo/woman-in-a-coat-fixing-her-hat-16113402/) |
-| Офисный | [Philip Justin Mamelic](https://www.pexels.com/@philip-justin-mamelic-1397651) | [снимок](https://www.pexels.com/photo/woman-in-white-blazer-sitting-on-brown-wooden-chair-3609704/) |
-| Smart casual | [Pelageia  Zelenina](https://www.pexels.com/@pelageia-zelenina-58865108) | [снимок](https://www.pexels.com/photo/well-dressed-woman-crossing-street-9883884/) |
-| Кэжуал | [Dmitriy Steinke](https://www.pexels.com/@dmitriy-steinke-559643503) | [снимок](https://www.pexels.com/photo/woman-showing-victory-sign-20507767/) |
-| Streetwear | [Alireza Heidarpour](https://www.pexels.com/@ahcapture) | [снимок](https://www.pexels.com/photo/urban-style-portrait-in-concrete-environment-29580867/) |
-| Спорт-шик | [Ivan Babydov](https://www.pexels.com/@babydov) | [снимок](https://www.pexels.com/photo/stylish-ethnic-woman-sitting-on-asphalt-road-in-sports-ground-7787923/) |
-| Романтический | [Đạt Nguyễn](https://www.pexels.com/@d-t-nguy-n-3781396) | [снимок](https://www.pexels.com/photo/woman-sitting-on-grass-with-flowers-5606417/) |
-| Балеткор | [Nur Tok](https://www.pexels.com/@nur-tok-1105432560) | [снимок](https://www.pexels.com/photo/little-girl-wearing-white-shoes-26698570/) |
-| Total black | [Abudullah 51](https://www.pexels.com/@abudullah-51-291932054) | [снимок](https://www.pexels.com/photo/stylish-woman-posing-in-black-fashion-outfit-35452031/) |
-| Гранж | [Harsh Vardhan](https://www.pexels.com/@hvfilmz) | [снимок](https://www.pexels.com/photo/woman-wearing-leather-costume-on-a-street-17812956/) |
-| Бохо | [Wesley Davi](https://www.pexels.com/@wesleydavi) | [снимок](https://www.pexels.com/photo/woman-in-summer-dress-posing-in-botanical-greenhouse-16122043/) |
-| Преппи | [Tetty Herawati](https://www.pexels.com/@tettyheraa) | [снимок](https://www.pexels.com/photo/stylish-woman-outdoors-in-jakarta-s-urban-setting-39050469/) |
-| Деним | [Alireza Heidarpour](https://www.pexels.com/@ahcapture) | [снимок](https://www.pexels.com/photo/portrait-of-young-woman-in-denim-jacket-outdoors-29627658/) |
-| Утилитарный | [Godisable Jacob](https://www.pexels.com/@godisable-jacob-226636) | [снимок](https://www.pexels.com/photo/woman-standing-on-sidewalk-15799202/) |
-| Вечерний | [Maksim Veter](https://www.pexels.com/@maksim-veter-83914364) | [снимок](https://www.pexels.com/photo/young-woman-in-a-black-dress-sitting-on-the-sofa-15523449/) |
+| Минимализм | Cromwell Ken | [снимок](https://www.pexels.com/photo/stylish-woman-in-casual-beige-outfit-portrait-31679362/) |
+| Тихая роскошь | Michelle Leman | [снимок](https://www.pexels.com/photo/diverse-women-in-stylish-coats-and-socks-6774574/) |
+| Офисный | Tima Miroshnichenko | [снимок](https://www.pexels.com/photo/woman-in-pink-blazer-and-pink-pants-7203488/) |
+| Smart casual | cottonbro studio | [снимок](https://www.pexels.com/photo/a-woman-in-black-blazer-and-blue-denim-jeans-7760002/) |
+| Кэжуал | Dmitriy Steinke | [снимок](https://www.pexels.com/photo/stylish-young-woman-in-grey-on-black-studio-background-31514678/) |
+| Streetwear | Alina  Rossoshanska | [снимок](https://www.pexels.com/photo/smiling-model-in-an-oversized-brown-hoodie-16982868/) |
+| Спорт-шик | Vika Glitter | [снимок](https://www.pexels.com/photo/boy-posing-on-white-background-14571332/) |
+| Романтический | Christina Chekhomova | [снимок](https://www.pexels.com/photo/short-haired-woman-in-red-floral-dress-smiling-11054057/) |
+| Балеткор | Gustavo Fring | [снимок](https://www.pexels.com/photo/portrait-of-a-ballerina-against-a-white-background-5888585/) |
+| Total black | Andrea Musto | [снимок](https://www.pexels.com/photo/woman-in-top-and-high-heels-20828586/) |
+| Гранж | Dima Valkov | [снимок](https://www.pexels.com/photo/studio-portrait-of-a-smiling-woman-in-a-leather-jacket-6211616/) |
+| Бохо | Darkshade Photos | [снимок](https://www.pexels.com/photo/elegant-portrait-of-woman-in-traditional-fashion-37347197/) |
+| Преппи | Larisa  Kruchina | [снимок](https://www.pexels.com/photo/woman-in-skirt-standing-and-leaning-on-chair-20220083/) |
+| Деним | cottonbro studio | [снимок](https://www.pexels.com/photo/a-woman-wearing-denim-jacket-and-denim-skirt-6770025/) |
+| Утилитарный | Pavel Danilyuk | [снимок](https://www.pexels.com/photo/stylish-woman-with-braided-hair-8422354/) |
+| Вечерний | Алексей Вечерин | [снимок](https://www.pexels.com/photo/a-woman-in-gray-sleeveless-dress-9563069/) |
