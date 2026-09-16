@@ -845,12 +845,38 @@ function say(msg, ok){
 }
 
 function readIncoming(){
-  const m = location.hash.match(/p=([A-Za-z0-9_-]+)/);
-  if (!m) return null;
-  try {
-    const json = atob(m[1].replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(decodeURIComponent(escape(json)));
-  } catch (e) { return null; }
+  /* Компактный формат из бота: s=стили&c=маска категорий&z=размеры
+     &b=бюджет&d=порог скидки&v=маска стоп-листа.
+     Порядок списков должен совпадать с bot/styles.py. */
+  const q = new URLSearchParams(location.hash.replace(/^#/, ""));
+  if (![...q.keys()].length) return null;
+
+  const unmask = (raw, order) => {
+    const n = parseInt(raw, 10);
+    if (!Number.isFinite(n)) return null;
+    return order.filter((_, i) => n & (1 << i));
+  };
+
+  const out = {};
+  if (q.has("s")) out.styles = q.get("s").split(",").filter(Boolean);
+  if (q.has("c")) out.categories = unmask(q.get("c"), CATS.map(c => c[0]));
+  if (q.has("v")) out.veto = unmask(q.get("v"), VETO);
+  if (q.has("z")){
+    const [top, bottom, jeans, shoes] = q.get("z").split("-");
+    out.sizes = {};
+    if (top) out.sizes.top = top;
+    if (bottom) out.sizes.bottom = bottom;
+    if (jeans) out.sizes.jeans = jeans;
+    if (shoes) out.sizes.shoes = shoes;
+  }
+  if (q.has("b")){
+    const [lo, hi] = q.get("b").split("-");
+    if (lo !== undefined && lo !== "") out.budgetMin = +lo;
+    if (hi === "max") out.budgetMax = 1e9;
+    else if (hi !== undefined && hi !== "") out.budgetMax = +hi;
+  }
+  if (q.has("d")) out.minDiscount = q.get("d");
+  return out;
 }
 
 let saving = false;
@@ -869,7 +895,7 @@ function save(){
       categories: state.categories,
       sizes: state.sizes,
       budgetMin: state.budgetMin,
-      budgetMax: state.budgetMax,
+      budgetMax: state.budgetMax >= 60000 ? 1e9 : state.budgetMax,
       minDiscount: state.minDiscount,
       veto: state.veto
     }));

@@ -1,6 +1,5 @@
 """Хендлеры бота «Сорока»."""
 import asyncio
-import base64
 import json
 import logging
 
@@ -12,7 +11,9 @@ from aiogram.types import (BotCommand, InlineKeyboardButton, InlineKeyboardMarku
                            KeyboardButton, Message, ReplyKeyboardMarkup, WebAppInfo)
 
 from . import config, db, digest, server, wizard
-from .styles import CATEGORIES, STYLES
+from .styles import CATEGORIES, STYLES, VETO_STEMS
+
+VETO_ORDER = list(VETO_STEMS)
 
 log = logging.getLogger(__name__)
 
@@ -26,19 +27,37 @@ BTN_TASTE = "🎨 Мой вкус"
 def _app_link(chat_id: int) -> str:
     """Адрес анкеты с текущим профилем в якоре.
 
-    Якорь браузер на сервер не отправляет, так что страница остаётся статической,
-    но открывается уже с проставленными ответами."""
+    Telegram обрезает адрес мини-аппа на 256 символах, поэтому профиль
+    кодируем коротко: категории и стоп-лист — битовыми масками по порядку
+    списков из styles.py, которые повторены в docs/index.html.
+    Якорь браузер на сервер не шлёт, так что страница остаётся статической.
+    """
     base = config.app_url()
     if not base:
         return ""
-    profile = db.get_profile(chat_id) or {}
-    payload = {k: profile.get(k) for k in
-               ("styles", "categories", "sizes", "budgetMin", "budgetMax",
-                "minDiscount", "veto") if profile.get(k) is not None}
-    blob = base64.urlsafe_b64encode(
-        json.dumps(payload, ensure_ascii=False).encode()).decode().rstrip("=")
-    sep = "&" if "#" in base else "#"
-    return f"{base}{sep}p={blob}"
+    p = db.get_profile(chat_id) or {}
+
+    def mask(values, order):
+        got = set(values or [])
+        return sum(1 << i for i, key in enumerate(order) if key in got)
+
+    sizes = p.get("sizes") or {}
+    parts = []
+    if p.get("styles"):
+        parts.append("s=" + ",".join(p["styles"]))
+    parts.append("c=%d" % mask(p.get("categories"), list(CATEGORIES)))
+    parts.append("z=%s-%s-%s-%s" % (sizes.get("top", ""), sizes.get("bottom", ""),
+                                    sizes.get("jeans", ""), sizes.get("shoes", "")))
+    hi = p.get("budgetMax") or 0
+    parts.append("b=%s-%s" % (p.get("budgetMin", 0), "max" if hi >= 10 ** 9 else hi))
+    parts.append("d=%s" % p.get("minDiscount", "any"))
+    parts.append("v=%d" % mask(p.get("veto"), VETO_ORDER))
+
+    link = base + "#" + "&".join(parts)
+    if len(link) > 256:  # профиль не влез — пусть откроется с настройками по умолчанию
+        log.warning("ссылка анкеты %s символов, открываем без профиля", len(link))
+        return base
+    return link
 
 
 def keyboard(chat_id: int | None = None) -> ReplyKeyboardMarkup:
