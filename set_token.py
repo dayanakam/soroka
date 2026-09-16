@@ -21,6 +21,10 @@ from pathlib import Path
 TOKEN_RE = re.compile(r"\d{6,}:[\w-]{30,}")
 PEXELS_RE = re.compile(r"[A-Za-z0-9]{40,}")
 
+# Cloudflare у Pexels отбивает запросы без браузерной подписи с ошибкой 1010
+BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/122.0 Safari/537.36")
+
 ENV = Path(__file__).resolve().parent / ".env"
 EXAMPLE = Path(__file__).resolve().parent / ".env.example"
 
@@ -78,19 +82,32 @@ def check_telegram(token: str) -> dict:
 
 
 def check_pexels(key: str) -> dict:
+    """Поиск у Pexels отвечает и без ключа, поэтому судим по заголовкам лимита:
+    их выдают только на запрос с признанным ключом."""
     req = urllib.request.Request(
         "https://api.pexels.com/v1/search?query=coat&per_page=1",
-        headers={"Authorization": key})
+        headers={"Authorization": key, "User-Agent": BROWSER_UA,
+                 "Accept": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=20) as r:
             data = json.loads(r.read())
-            return {"снимков в базе по пробному запросу": data.get("total_results")}
+            limit = r.headers.get("X-Ratelimit-Limit")
+            left = r.headers.get("X-Ratelimit-Remaining")
     except urllib.error.HTTPError as e:
         raise SystemExit(
             f"Pexels отверг ключ (HTTP {e.code}). "
             "Скопировался не целиком или ключ не тот — попробуй ещё раз.")
     except Exception as e:
         raise SystemExit(f"Не достучались до Pexels: {type(e).__name__}")
+
+    out = {"снимков по пробному запросу": data.get("total_results")}
+    if limit:
+        out["запросов в час"] = limit
+        out["осталось сейчас"] = left
+    else:
+        out["внимание"] = ("Pexels не подтвердил ключ заголовками лимита — "
+                           "запишу, но проверь, что скопировала именно ключ")
+    return out
 
 
 SERVICES = {

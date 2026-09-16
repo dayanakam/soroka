@@ -32,6 +32,10 @@ PAGE = ROOT / "docs" / "index.html"
 
 API = "https://api.pexels.com/v1/search"
 
+# Cloudflare у Pexels отбивает запросы без браузерной подписи с ошибкой 1010
+BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/122.0 Safari/537.36")
+
 # Запросы подобраны так, чтобы в кадр попадал образ целиком, а не лицо крупным
 # планом: лицензия покрывает права фотографа, но не права людей на снимке.
 QUERIES = {
@@ -41,11 +45,15 @@ QUERIES = {
     "smart":      ["smart casual blazer jeans woman", "blazer outfit street style"],
     "casual":     ["casual jeans t-shirt outfit woman", "everyday casual outfit"],
     "street":     ["streetwear oversized hoodie woman", "street style oversized outfit"],
-    "athleisure": ["athleisure leggings woman", "sportswear casual woman city"],
-    "romantic":   ["romantic lace dress woman", "floral midi dress woman"],
+    "athleisure": ["woman sportswear outfit street full body",
+                   "woman tracksuit outfit city", "athleisure outfit woman walking"],
+    "romantic":   ["floral midi dress woman spring", "woman ruffle blouse outfit",
+                   "woman pastel dress street style"],
     "ballet":     ["ballet flats outfit", "ballet core outfit pastel"],
-    "black":      ["all black outfit woman", "total black look woman"],
-    "grunge":     ["plaid flannel shirt outfit", "grunge outfit denim woman"],
+    "black":      ["woman black outfit minimal studio", "woman in black coat elegant",
+                   "monochrome black outfit woman"],
+    "grunge":     ["woman leather jacket boots street style", "woman standing denim jacket grunge",
+                   "woman oversized flannel street walking"],
     "boho":       ["boho maxi dress woman", "bohemian outfit woman"],
     "preppy":     ["preppy cardigan outfit woman", "pleated skirt outfit"],
     "denim":      ["denim jacket outfit woman", "double denim outfit"],
@@ -57,7 +65,9 @@ QUERIES = {
 def api(query: str, key: str) -> list[dict]:
     url = API + "?" + urllib.parse.urlencode(
         {"query": query, "orientation": "portrait", "per_page": 30, "size": "medium"})
-    req = urllib.request.Request(url, headers={"Authorization": key})
+    req = urllib.request.Request(url, headers={"Authorization": key,
+                                               "User-Agent": BROWSER_UA,
+                                               "Accept": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=25) as r:
             return json.loads(r.read()).get("photos", [])
@@ -81,7 +91,7 @@ def best(photos: list[dict], used: set[int]) -> dict | None:
 
 
 def download(url: str, dest: Path) -> int:
-    req = urllib.request.Request(url, headers={"User-Agent": "SorokaBot/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": BROWSER_UA})
     with urllib.request.urlopen(req, timeout=60) as r:
         blob = r.read()
     dest.write_bytes(blob)
