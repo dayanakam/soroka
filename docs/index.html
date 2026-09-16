@@ -38,38 +38,33 @@ section:first-of-type{border-top:none;padding-top:0}
 h2{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:0}
 .count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 
-/* стили */
-.styles{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+/* стили: цветная плитка с повёрнутой обложкой в углу */
+.styles{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(148px,1fr))}
 .pick{
-  position:relative;display:block;width:100%;padding:0;border:none;background:none;
-  font:inherit;color:inherit;text-align:left;cursor:pointer;
+  /* кнопка по умолчанию центрует содержимое — прижимаем название к верху */
+  position:relative;display:flex;flex-direction:column;align-items:flex-start;
+  justify-content:flex-start;width:100%;aspect-ratio:1/1;padding:12px;
+  border:none;border-radius:10px;background:var(--c);overflow:hidden;
+  font:inherit;color:#fff;text-align:left;cursor:pointer;
+  transition:transform .12s;
 }
-.pick .shot{
-  display:block;aspect-ratio:3/4;overflow:hidden;border-radius:10px;
-  background:var(--fill);border:1.5px solid transparent;transition:border-color .15s;
+.pick:active{transform:scale(.98)}
+.pick .nm{
+  position:relative;z-index:2;display:block;max-width:74%;
+  font-size:15px;font-weight:700;line-height:1.15;letter-spacing:-.01em;
 }
-.pick .shot img{
-  width:100%;height:100%;object-fit:cover;display:block;
-  /* каталожные кадры сняты на моделях: приподнимаем рамку, чтобы
-     в карточке была вещь, а голова уходила за край */
-  transform:scale(1.18);transform-origin:50% 100%;
+.pick .art{
+  position:absolute;right:-12px;bottom:-12px;width:47%;aspect-ratio:1;
+  border-radius:2px;overflow:hidden;transform:rotate(25deg);
+  box-shadow:0 6px 16px rgba(0,0,0,.3);
 }
-.pick .shot.nocrop img{transform:none}
-/* ссылка на снимок может протухнуть вместе с товаром — тогда ровная плитка,
-   а не сломанная картинка */
-.shot.miss img{display:none}
-.shot.miss::after{
-  content:attr(data-name);position:absolute;inset:0;display:grid;place-items:center;
-  padding:10px;text-align:center;color:var(--muted);font-size:13px;
-}
-.shot{position:relative}
-.pick[aria-pressed="true"] .shot{border-color:var(--accent)}
-.pick:focus-visible .shot{outline:2px solid var(--accent);outline-offset:2px}
+.pick .art img{width:100%;height:100%;object-fit:cover;display:block}
+.pick[aria-pressed="true"]{box-shadow:inset 0 0 0 3px #fff}
+.pick:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .styles.at-max .pick[aria-pressed="false"]{opacity:.4}
-.nm{display:block;font-size:13px;font-weight:500;margin-top:7px;letter-spacing:-.01em}
 .tick{
-  position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;
-  background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;
+  position:absolute;top:10px;right:10px;z-index:3;width:22px;height:22px;
+  border-radius:50%;background:#fff;color:#111113;display:grid;place-items:center;
   font-size:12px;transform:scale(.5);opacity:0;transition:.15s;
 }
 .pick[aria-pressed="true"] .tick{transform:scale(1);opacity:1}
@@ -178,7 +173,8 @@ const STYLES = [
    ],
    "rating": 5
   },
-  "crop": true
+  "crop": true,
+  "color": "#7C7A73"
  },
  {
   "id": "quiet",
@@ -197,7 +193,8 @@ const STYLES = [
    ],
    "rating": 4.6
   },
-  "crop": true
+  "crop": true,
+  "color": "#9A7448"
  },
  {
   "id": "office",
@@ -218,7 +215,8 @@ const STYLES = [
    ],
    "rating": 4.3
   },
-  "crop": true
+  "crop": true,
+  "color": "#4E5F7E"
  },
  {
   "id": "smart",
@@ -238,7 +236,8 @@ const STYLES = [
    ],
    "rating": 4.8
   },
-  "crop": true
+  "crop": true,
+  "color": "#3B6560"
  },
  {
   "id": "casual",
@@ -257,7 +256,8 @@ const STYLES = [
    ],
    "rating": 5
   },
-  "crop": true
+  "crop": true,
+  "color": "#47689B"
  },
  {
   "id": "street",
@@ -276,7 +276,8 @@ const STYLES = [
    ],
    "rating": 5
   },
-  "crop": true
+  "crop": true,
+  "color": "#34343A"
  },
  {
   "id": "athleisure",
@@ -299,7 +300,8 @@ const STYLES = [
    ],
    "rating": 4
   },
-  "crop": true
+  "crop": true,
+  "color": "#5E6B45"
  },
  {
   "id": "romantic",
@@ -318,7 +320,8 @@ const STYLES = [
    ],
    "rating": 5
   },
-  "crop": true
+  "crop": true,
+  "color": "#A8536A"
  },
  {
   "id": "ballet",
@@ -337,7 +340,8 @@ const STYLES = [
    ],
    "rating": 5
   },
-  "crop": false
+  "crop": false,
+  "color": "#96606B"
  },
  {
   "id": "black",
@@ -358,7 +362,8 @@ const STYLES = [
    ],
    "rating": 5
   },
-  "crop": true
+  "crop": true,
+  "color": "#1B1B1F"
  },
  {
   "id": "grunge",
@@ -377,7 +382,8 @@ const STYLES = [
    ],
    "rating": 4.9
   },
-  "crop": true
+  "crop": true,
+  "color": "#45503C"
  },
  {
   "id": "boho",
@@ -396,7 +402,8 @@ const STYLES = [
    ],
    "rating": 4.9
   },
-  "crop": true
+  "crop": true,
+  "color": "#A05A38"
  },
  {
   "id": "preppy",
@@ -415,7 +422,8 @@ const STYLES = [
    ],
    "rating": 4.6
   },
-  "crop": true
+  "crop": true,
+  "color": "#7E3540"
  },
  {
   "id": "denim",
@@ -434,7 +442,8 @@ const STYLES = [
    ],
    "rating": 4.8
   },
-  "crop": true
+  "crop": true,
+  "color": "#2F4A75"
  },
  {
   "id": "utility",
@@ -453,7 +462,8 @@ const STYLES = [
    ],
    "rating": 4.8
   },
-  "crop": true
+  "crop": true,
+  "color": "#6B6647"
  },
  {
   "id": "glam",
@@ -474,7 +484,8 @@ const STYLES = [
    ],
    "rating": 4.4
   },
-  "crop": true
+  "crop": true,
+  "color": "#563762"
  }
 ];
 
@@ -531,11 +542,12 @@ function toggle(list, value){
 /* ---------- build: styles ---------- */
 function buildStyles(){
   $("styles").innerHTML = STYLES.map(s => `
-    <button class="pick" type="button" data-id="${s.id}" aria-pressed="false">
-      <span class="shot${s.crop === false ? " nocrop" : ""}" data-name="${s.name}"><img src="${s.img}" alt="" loading="lazy"
-            decoding="async" onerror="this.parentNode.classList.add('miss')"></span>
-      <span class="tick" aria-hidden="true">&#10003;</span>
+    <button class="pick" type="button" data-id="${s.id}" aria-pressed="false"
+            style="--c:${s.color}">
       <span class="nm">${s.name}</span>
+      <span class="art"><img src="${s.img}" alt="" loading="lazy" decoding="async"
+            onerror="this.parentNode.remove()"></span>
+      <span class="tick" aria-hidden="true">&#10003;</span>
     </button>`).join("");
 
   $("styles").addEventListener("click", e => {
