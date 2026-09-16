@@ -5,8 +5,8 @@
 """
 import logging
 from aiogram import Bot, F, Router
-from aiogram.types import (CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup,
-                           InputMediaPhoto, Message)
+from aiogram.types import (BufferedInputFile, CallbackQuery, InlineKeyboardButton,
+                           InlineKeyboardMarkup, InputMediaPhoto, Message)
 
 from . import db
 from .examples import EXAMPLES
@@ -63,6 +63,15 @@ def _rows(buttons: list[InlineKeyboardButton], per_row: int) -> InlineKeyboardMa
     return InlineKeyboardMarkup(inline_keyboard=grid)
 
 
+async def _photo_bytes(url: str) -> BufferedInputFile | None:
+    """Telegram не может скачать снимки с Wildberries, поэтому качаем сами."""
+    from . import images
+    from .sources import wb
+    async with wb.make_session() as s:
+        blob = await images.fetch(s, url)
+    return BufferedInputFile(blob, filename="cover.jpg") if blob else None
+
+
 def _photo(style_id: str) -> str | None:
     """Сначала file_id — Telegram уже хранит картинку и второй раз её не грузит.
     Дальше ссылка на каталожный кадр WB: копий у нас нет."""
@@ -110,6 +119,10 @@ async def show_style(bot: Bot, chat_id: int, state: dict,
                      edit: Message | None = None) -> None:
     sid = ORDER[state["idx"]]
     photo = _photo(sid)
+    # file_id отдаём как есть, а ссылку на WB Telegram скачать не может —
+    # такие качаем сами и отправляем байтами
+    if isinstance(photo, str) and photo.startswith("http"):
+        photo = await _photo_bytes(photo)
     caption = _style_caption(state)
     kb = _style_kb(state)
 

@@ -9,11 +9,13 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
-from aiogram.types import (BotCommand, InlineKeyboardButton, InlineKeyboardMarkup,
-                           InputMediaPhoto, KeyboardButton, MenuButtonCommands,
-                           MenuButtonWebApp, Message, ReplyKeyboardMarkup, WebAppInfo)
+from aiogram.types import (BotCommand, BufferedInputFile, InlineKeyboardButton,
+                           InlineKeyboardMarkup, InputMediaPhoto, KeyboardButton,
+                           MenuButtonCommands, MenuButtonWebApp, Message,
+                           ReplyKeyboardMarkup, WebAppInfo)
 
-from . import config, db, digest, server, wizard
+from . import config, db, digest, images, server, wizard
+from .sources import wb
 from .styles import CATEGORIES, STYLES, VETO_STEMS
 
 VETO_ORDER = list(VETO_STEMS)
@@ -165,27 +167,65 @@ def _visible(html_text: str) -> str:
     return re.sub(r"<[^>]+>", "", html_text)
 
 
+async def photo_inputs(items: list[dict]) -> list:
+    """Telegram не может скачать снимки с Wildberries — качаем сами и отдаём
+    байтами. Что Telegram уже видел, отправляем по file_id: это бесплатно."""
+    out: list = [None] * len(items)
+    need: list[int] = []
+    for i, it in enumerate(items):
+        cached = db.get_file_id(f"item:{it['id']}")
+        if cached:
+            out[i] = cached
+        else:
+            need.append(i)
+
+    if need:
+        async with wb.make_session() as session:
+            blobs = await images.fetch_all(session, [items[i]["img"] for i in need])
+        for i, blob in zip(need, blobs):
+            if blob:
+                out[i] = BufferedInputFile(blob, filename=f"{items[i]['id']}.jpg")
+    return out
+
+
+def _remember_item(item: dict, msg: Message) -> None:
+    if msg and msg.photo:
+        db.set_file_id(f"item:{item['id']}", msg.photo[-1].file_id)
+
+
 async def send_album(bot: Bot, chat_id: int, items: list[dict], head: str) -> bool:
     """Одним постом. Возвращает False, если Telegram не принял альбом."""
     chunk = items[:MAX_ALBUM]
-    caption = album_caption(chunk, head)
-    media = [InputMediaPhoto(media=it["img"],
-                             caption=caption if i == 0 else None,
+    photos = await photo_inputs(chunk)
+    pairs = [(it, ph) for it, ph in zip(chunk, photos) if ph is not None]
+    if len(pairs) < 2:                       # альбом — это минимум две картинки
+        return False
+
+    caption = album_caption([it for it, _ in pairs], head)
+    media = [InputMediaPhoto(media=ph, caption=caption if i == 0 else None,
                              parse_mode=ParseMode.HTML)
-             for i, it in enumerate(chunk)]
+             for i, (_, ph) in enumerate(pairs)]
     try:
-        await bot.send_media_group(chat_id, media)
-        return True
+        sent = await bot.send_media_group(chat_id, media)
     except Exception as e:
         log.warning("альбом не ушёл (%s), отправляю по одной", e)
         return False
 
+    for (it, _), msg in zip(pairs, sent):
+        _remember_item(it, msg)
+    return True
+
 
 async def send_items(bot: Bot, chat_id: int, items: list[dict]) -> None:
-    for it in items:
+    photos = await photo_inputs(items)
+    for it, ph in zip(items, photos):
         try:
-            await bot.send_photo(chat_id, it["img"], caption=caption(it),
-                                 reply_markup=buy_button(it))
+            if ph is None:
+                await bot.send_message(chat_id, caption(it), reply_markup=buy_button(it))
+            else:
+                msg = await bot.send_photo(chat_id, ph, caption=caption(it),
+                                           reply_markup=buy_button(it))
+                _remember_item(it, msg)
         except Exception as e:
             log.warning("не отправили %s: %s", it.get("id"), e)
         await asyncio.sleep(0.4)  # бережём лимиты Telegram
