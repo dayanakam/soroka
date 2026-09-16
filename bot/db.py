@@ -6,11 +6,11 @@ from pathlib import Path
 from typing import Any
 
 from . import config
+from .styles import CATEGORIES
 
 DEFAULT_PROFILE: dict[str, Any] = {
     "styles": [],
-    "categories": ["tops", "bottoms", "dresses", "outerwear", "knit",
-                   "shoes", "bags", "accessories", "lingerie", "swim"],
+    "categories": list(CATEGORIES),      # список один, чтобы не разъезжался
     "sizes": {"top": "M", "bottom": "46", "jeans": "28", "shoes": "38"},
     "budgetMin": 1500,
     "budgetMax": 25000,
@@ -86,7 +86,22 @@ def get_profile(chat_id: int) -> dict[str, Any] | None:
     if not row:
         return None
     saved = json.loads(row["profile"])
-    return {**DEFAULT_PROFILE, **saved}
+    profile = {**DEFAULT_PROFILE, **saved}
+    return _migrate(profile)
+
+
+def _migrate(profile: dict) -> dict:
+    """Старые профили не знают про новые категории.
+
+    Юбки раньше входили в пункт «Брюки, джинсы, юбки» — значит тем, у кого
+    выбран низ, юбки тоже были нужны. Выключенные категории не трогаем.
+    """
+    cats = profile.get("categories") or []
+    if "skirts" not in cats and "bottoms" in cats:
+        cats = list(cats)
+        cats.insert(cats.index("bottoms") + 1, "skirts")
+        profile["categories"] = cats
+    return profile
 
 
 def save_profile(chat_id: int, profile: dict[str, Any],
