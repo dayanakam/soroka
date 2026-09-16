@@ -60,17 +60,25 @@ h2{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:0}
   /* длинные слова переносим по слогам, а не рубим посередине */
   hyphens:auto;overflow-wrap:break-word;
 }
-.pick .art{
-  position:absolute;right:-7px;bottom:-7px;width:64%;aspect-ratio:1;
-  border-radius:2px;overflow:hidden;transform:rotate(20deg);
-  box-shadow:0 5px 14px rgba(0,0,0,.32);
+.pick .art{position:absolute;inset:0;overflow:hidden}
+.pick .art img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  /* кадры вертикальные, плитка квадратная: срезаем сверху, где голова */
+  object-position:50% 68%;
 }
-.pick .art img{width:100%;height:100%;object-fit:cover;display:block}
+.pick.nocrop .art img{object-position:50% 50%}
+/* затемнение под названием, иначе белый текст теряется на светлом снимке */
+.pick .art::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.12) 42%,
+                                      rgba(0,0,0,0) 62%);
+}
 .pick[aria-pressed="true"]{box-shadow:inset 0 0 0 3px #fff}
+.pick .nm{position:relative;z-index:2;text-shadow:0 1px 3px rgba(0,0,0,.45)}
 .pick:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .styles.at-max .pick[aria-pressed="false"]{opacity:.4}
 .tick{
-  position:absolute;top:7px;right:7px;z-index:3;width:18px;height:18px;
+  position:absolute;top:7px;right:7px;z-index:4;width:18px;height:18px;
   border-radius:50%;background:#fff;color:#111113;display:grid;place-items:center;
   font-size:10px;transform:scale(.5);opacity:0;transition:.15s;
 }
@@ -549,11 +557,11 @@ function toggle(list, value){
 /* ---------- build: styles ---------- */
 function buildStyles(){
   $("styles").innerHTML = STYLES.map(s => `
-    <button class="pick" type="button" data-id="${s.id}" aria-pressed="false"
-            style="--c:${s.color}">
+    <button class="pick${s.crop === false ? " nocrop" : ""}" type="button"
+            data-id="${s.id}" aria-pressed="false" style="--c:${s.color}">
       <span class="nm">${s.name}</span>
       <span class="art"><img src="${s.img}" alt="" loading="lazy" decoding="async"
-            onerror="this.parentNode.remove()"></span>
+            onerror="this.remove()"></span>
       <span class="tick" aria-hidden="true">&#10003;</span>
     </button>`).join("");
 
