@@ -14,12 +14,12 @@ EXAMPLES = {
   "id": 441252998
  },
  "quiet": {
-  "img": "https://basket-12.wbbasket.ru/vol1683/part168326/168326890/images/c516x688/1.webp",
-  "url": "https://www.wildberries.ru/catalog/168326890/detail.aspx",
+  "id": 698795352,
   "brand": "Mango",
-  "name": "Пальто",
-  "price": 10199,
-  "id": 168326890
+  "name": "Пальто объемное из шерсти ручной работы PICAROL",
+  "price": 8519,
+  "url": "https://www.wildberries.ru/catalog/698795352/detail.aspx",
+  "img": "https://basket-33.wbbasket.ru/vol6987/part698795/698795352/images/c516x688/1.webp"
  },
  "office": {
   "img": "https://basket-25.wbbasket.ru/vol4412/part441226/441226836/images/c516x688/1.webp",
@@ -30,28 +30,28 @@ EXAMPLES = {
   "id": 441226836
  },
  "smart": {
-  "img": "https://basket-43.wbbasket.ru/vol11365/part1136561/1136561549/images/c516x688/1.webp",
-  "url": "https://www.wildberries.ru/catalog/1136561549/detail.aspx",
+  "id": 163832318,
   "brand": "Befree",
-  "name": "Пиджак приталенный костюмный с вискозой школьный",
-  "price": 3489,
-  "id": 1136561549
+  "name": "Пиджак оверсайз удлиненный классический школьный",
+  "price": 5118,
+  "url": "https://www.wildberries.ru/catalog/163832318/detail.aspx",
+  "img": "https://basket-11.wbbasket.ru/vol1638/part163832/163832318/images/c516x688/1.webp"
  },
  "casual": {
-  "img": "https://basket-34.wbbasket.ru/vol7339/part733931/733931410/images/c516x688/1.webp",
-  "url": "https://www.wildberries.ru/catalog/733931410/detail.aspx",
-  "brand": "Befree",
-  "name": "Джинсы прямые классические со средней посадкой",
-  "price": 1085,
-  "id": 733931410
+  "id": 545418203,
+  "brand": "Mango",
+  "name": "Джинсы прямые с посадкой на талии BLANCA",
+  "price": 2399,
+  "url": "https://www.wildberries.ru/catalog/545418203/detail.aspx",
+  "img": "https://basket-28.wbbasket.ru/vol5454/part545418/545418203/images/c516x688/1.webp"
  },
  "street": {
-  "img": "https://basket-47.wbbasket.ru/vol14547/part1454749/1454749448/images/c516x688/1.webp",
-  "url": "https://www.wildberries.ru/catalog/1454749448/detail.aspx",
-  "brand": "Befree",
-  "name": "Кардиган оверсайз на молнии вязаный с вышивкой",
-  "price": 5715,
-  "id": 1454749448
+  "id": 313899500,
+  "brand": "Mango",
+  "name": "Свитшот оверсайз с капюшоном \"PEPIS\"",
+  "price": 2519,
+  "url": "https://www.wildberries.ru/catalog/313899500/detail.aspx",
+  "img": "https://basket-19.wbbasket.ru/vol3138/part313899/313899500/images/c516x688/1.webp"
  },
  "athleisure": {
   "img": "https://basket-34.wbbasket.ru/vol7351/part735137/735137900/images/c516x688/1.webp",

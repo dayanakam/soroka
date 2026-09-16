@@ -89,6 +89,11 @@ async def _head_ok(session: aiohttp.ClientSession, url: str) -> bool:
         return False
 
 
+async def image_head_ok(session: aiohttp.ClientSession, url: str) -> bool:
+    """Жива ли ссылка на фото. Товары снимают с продажи, и обложки протухают."""
+    return await _head_ok(session, url)
+
+
 async def image_url(session: aiohttp.ClientSession, pid: int, idx: int = 1) -> str | None:
     """Ссылка на фото товара. Хост определяется один раз на vol и кешируется."""
     vol, part = pid // 100000, pid // 1000

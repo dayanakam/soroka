@@ -58,11 +58,13 @@ async def main() -> None:
         current = ns.get("EXAMPLES", {})
 
     async with wb.make_session() as session:
+        print("проверяю обложки…")
         for sid, style in STYLES.items():
             if only and sid not in only:
                 continue
-            if not only and current.get(sid, {}).get("img"):
-                continue                        # уже есть — не трогаем
+            have = current.get(sid, {}).get("img")
+            if not only and have and await wb.image_head_ok(session, have):
+                continue                        # обложка на месте — не трогаем
             found = await pick(session, sid, style)
             if found:
                 current[sid] = found
