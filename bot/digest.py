@@ -66,14 +66,25 @@ async def build(chat_id: int, profile: dict, n: int,
         # для срочных уведомлений — только заметные скидки
         ranked = [i for i in ranked if i.get("discount", 0) >= 40]
 
-    fresh = db.filter_unseen(chat_id, ranked)
+    fresh, stale = db.split_seen(chat_id, ranked)
     picked = diversify(fresh, n)
+
+    # добираем уже показанным, начиная с самого давнего: пустой пост хуже повтора
+    repeated = 0
+    if len(picked) < n and stale and not only_drops:
+        taken = {i["id"] for i in picked}
+        extra = diversify([s for s in stale if s["id"] not in taken], n - len(picked))
+        picked += extra
+        repeated = len(extra)
     # подсказка нужна не только когда вещей мало, но и когда они все из одной
     # категории: восемь пальто подряд — тоже признак слишком узких фильтров
     from collections import Counter
     top = Counter(i["_category"] for i in picked).most_common(1)
     monotone = bool(picked) and top and top[0][1] >= max(3, len(picked) * 0.6)
     hint = why_thin(found, profile) if (len(picked) < n or monotone) else None
+    if repeated:
+        note = f"Из них {repeated} уже показывала — нового под твои фильтры мало."
+        hint = f"{note} {hint}" if hint else note
     if not picked:
         return [], hint
 

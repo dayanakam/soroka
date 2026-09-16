@@ -111,24 +111,47 @@ def set_paused(chat_id: int, paused: bool) -> None:
     save_profile(chat_id, p)
 
 
-def filter_unseen(chat_id: int, items: list[dict]) -> list[dict]:
-    """Убирает то, что уже показывали — кроме случая, когда цена заметно упала."""
+REPEAT_AFTER = 45 * 86400      # через полтора месяца вещь снова считается новой
+
+
+def split_seen(chat_id: int, items: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Делит на «не показывали» и «показывали», вторые — от самых давних.
+
+    Новым считается и то, что подешевело больше чем на 15 процентов,
+    и то, что показывали очень давно: иначе при узких фильтрах пул
+    вычерпывается за пару подборок и присылать становится нечего.
+    """
     if not items:
-        return []
+        return [], []
     ids = [str(i["id"]) for i in items]
     marks = ",".join("?" * len(ids))
     with _conn() as c:
         rows = c.execute(
-            f"SELECT item_id, price FROM seen WHERE chat_id=? AND item_id IN ({marks})",
+            f"SELECT item_id, price, shown_at FROM seen "
+            f"WHERE chat_id=? AND item_id IN ({marks})",
             (chat_id, *ids),
         ).fetchall()
-    before = {r["item_id"]: r["price"] for r in rows}
-    fresh = []
+    before = {r["item_id"]: (r["price"], r["shown_at"]) for r in rows}
+
+    now = time.time()
+    fresh, stale = [], []
     for it in items:
-        old = before.get(str(it["id"]))
-        if old is None or it["price"] <= old * 0.85:
+        mark = before.get(str(it["id"]))
+        if mark is None:
             fresh.append(it)
-    return fresh
+            continue
+        price, shown_at = mark
+        if it["price"] <= price * 0.85 or now - shown_at > REPEAT_AFTER:
+            fresh.append(it)
+        else:
+            stale.append((shown_at, it))
+
+    stale.sort(key=lambda x: x[0])          # сначала то, что видели давнее всего
+    return fresh, [it for _, it in stale]
+
+
+def filter_unseen(chat_id: int, items: list[dict]) -> list[dict]:
+    return split_seen(chat_id, items)[0]
 
 
 def mark_seen(chat_id: int, items: list[dict]) -> None:
