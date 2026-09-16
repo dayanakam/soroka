@@ -4,19 +4,16 @@
 и вернуться, ничего не потеряется.
 """
 import logging
-from pathlib import Path
-
 from aiogram import Bot, F, Router
-from aiogram.types import (CallbackQuery, FSInputFile, InlineKeyboardButton,
-                           InlineKeyboardMarkup, InputMediaPhoto, Message)
+from aiogram.types import (CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup,
+                           InputMediaPhoto, Message)
 
 from . import db
+from .examples import EXAMPLES
 from .styles import CATEGORIES, STYLES, VETO_STEMS
 
 log = logging.getLogger(__name__)
 router = Router()
-
-CARDS = Path(__file__).resolve().parent / "cards"
 
 MAX_STYLES = 5
 MIN_STYLES = 1
@@ -61,10 +58,13 @@ def _rows(buttons: list[InlineKeyboardButton], per_row: int) -> InlineKeyboardMa
     return InlineKeyboardMarkup(inline_keyboard=grid)
 
 
-async def _photo(bot: Bot, style_id: str) -> FSInputFile | str:
-    """Отдаём file_id, если Telegram уже хранит эту картинку. Иначе файл."""
+def _photo(style_id: str) -> str | None:
+    """Копий фотографий у нас нет. Первый раз отдаём ссылку на снимок WB,
+    дальше — file_id, который Telegram выдал после первой отправки."""
     cached = db.get_file_id(f"style:{style_id}")
-    return cached or FSInputFile(CARDS / f"{style_id}.jpg")
+    if cached:
+        return cached
+    return (EXAMPLES.get(style_id) or {}).get("img")
 
 
 def _remember_photo(style_id: str, msg: Message) -> None:
@@ -103,20 +103,35 @@ def _style_kb(state: dict) -> InlineKeyboardMarkup:
 async def show_style(bot: Bot, chat_id: int, state: dict,
                      edit: Message | None = None) -> None:
     sid = ORDER[state["idx"]]
-    media = InputMediaPhoto(media=await _photo(bot, sid), caption=_style_caption(state),
-                            parse_mode="HTML")
-    if edit is not None:
+    photo = _photo(sid)
+    caption = _style_caption(state)
+    kb = _style_kb(state)
+
+    if photo:
+        media = InputMediaPhoto(media=photo, caption=caption, parse_mode="HTML")
+        if edit is not None:
+            try:
+                sent = await edit.edit_media(media=media, reply_markup=kb)
+                if isinstance(sent, Message):
+                    _remember_photo(sid, sent)
+                return
+            except Exception as e:
+                log.warning("не переписали карточку %s: %s", sid, e)
         try:
-            sent = await edit.edit_media(media=media, reply_markup=_style_kb(state))
-            if isinstance(sent, Message):
-                _remember_photo(sid, sent)
+            sent = await bot.send_photo(chat_id, photo, caption=caption, reply_markup=kb)
+            _remember_photo(sid, sent)
             return
         except Exception as e:
-            log.warning("не переписали карточку, шлём новую: %s", e)
-    sent = await bot.send_photo(chat_id, await _photo(bot, sid),
-                                caption=_style_caption(state),
-                                reply_markup=_style_kb(state))
-    _remember_photo(sid, sent)
+            # Telegram не всегда принимает webp по ссылке — тогда без картинки
+            log.warning("фото стиля %s не ушло (%s), показываем текстом", sid, e)
+
+    if edit is not None:
+        try:
+            await edit.edit_caption(caption=caption, parse_mode="HTML", reply_markup=kb)
+            return
+        except Exception:
+            pass
+    await bot.send_message(chat_id, caption, reply_markup=kb)
 
 
 async def start_wizard(bot: Bot, chat_id: int) -> None:
