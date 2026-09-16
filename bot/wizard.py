@@ -405,6 +405,9 @@ async def on_finish(cb: CallbackQuery) -> None:
                     first_name=cb.from_user.first_name or "")
     db.clear_state(chat_id)
 
+    from .bot import refresh_menu          # поздний импорт: избегаем кольца
+    await refresh_menu(cb.bot, chat_id)
+
     styles_txt = " · ".join(STYLES[s]["name"] for s in profile["styles"])
     sz = profile["sizes"]
     cap = ("без верхней границы" if profile["budgetMax"] >= 10 ** 9

@@ -8,7 +8,8 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
 from aiogram.types import (BotCommand, InlineKeyboardButton, InlineKeyboardMarkup,
-                           KeyboardButton, Message, ReplyKeyboardMarkup, WebAppInfo)
+                           KeyboardButton, MenuButtonCommands, MenuButtonWebApp, Message,
+                           ReplyKeyboardMarkup, WebAppInfo)
 
 from . import config, db, digest, server, wizard
 from .styles import CATEGORIES, STYLES, VETO_STEMS
@@ -22,6 +23,7 @@ dp.include_router(wizard.router)
 
 BTN_DIGEST = "✨ Подборка"
 BTN_TASTE = "🎨 Мой вкус"
+BTN_MENU = "Мой вкус"
 
 
 def _app_link(chat_id: int) -> str:
@@ -58,6 +60,24 @@ def _app_link(chat_id: int) -> str:
         log.warning("ссылка анкеты %s символов, открываем без профиля", len(link))
         return base
     return link
+
+
+async def refresh_menu(bot: Bot, chat_id: int) -> None:
+    """Кнопка меню слева от поля ввода — отдельная от клавиатуры, и Telegram
+    помнит её, пока не перезапишешь. Ставим на неё анкету с уже проставленным
+    профилем и обновляем всякий раз, когда профиль меняется."""
+    link = _app_link(chat_id)
+    try:
+        if link:
+            await bot.set_chat_menu_button(
+                chat_id=chat_id,
+                menu_button=MenuButtonWebApp(text=BTN_MENU,
+                                             web_app=WebAppInfo(url=link)))
+        else:
+            await bot.set_chat_menu_button(chat_id=chat_id,
+                                           menu_button=MenuButtonCommands())
+    except Exception as e:
+        log.warning("не обновили кнопку меню для %s: %s", chat_id, e)
 
 
 def keyboard(chat_id: int | None = None) -> ReplyKeyboardMarkup:
@@ -134,6 +154,7 @@ async def send_digest(bot: Bot, chat_id: int, n: int | None = None,
 
 @dp.message(CommandStart())
 async def start(msg: Message) -> None:
+    await refresh_menu(msg.bot, msg.chat.id)
     profile = db.get_profile(msg.chat.id)
     if profile and profile.get("styles"):
         picked = " · ".join(STYLES[s]["name"] for s in profile["styles"] if s in STYLES)
@@ -244,6 +265,7 @@ async def from_miniapp(msg: Message) -> None:
                     username=msg.from_user.username or "",
                     first_name=msg.from_user.first_name or "")
     db.clear_state(msg.chat.id)
+    await refresh_menu(msg.bot, msg.chat.id)
 
     names = " · ".join(STYLES[s]["name"] for s in profile["styles"] if s in STYLES)
     sz = profile.get("sizes", {})
@@ -273,4 +295,11 @@ async def make_bot() -> Bot:
         BotCommand(command="resume", description="Вернуть рассылку"),
         BotCommand(command="help", description="Что я умею"),
     ])
+    if config.app_url():
+        try:
+            await bot.set_chat_menu_button(
+                menu_button=MenuButtonWebApp(
+                    text=BTN_MENU, web_app=WebAppInfo(url=config.app_url())))
+        except Exception as e:
+            log.warning("не выставили кнопку меню по умолчанию: %s", e)
     return bot

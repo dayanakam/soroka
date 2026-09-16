@@ -87,6 +87,11 @@ def save_profile(chat_id: int, profile: dict[str, Any],
         )
 
 
+def all_chats() -> list[int]:
+    with _conn() as c:
+        return [r["chat_id"] for r in c.execute("SELECT chat_id FROM users")]
+
+
 def all_active_chats() -> list[int]:
     """Те, у кого заполнен профиль и не стоит пауза."""
     out = []

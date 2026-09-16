@@ -5,7 +5,7 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from . import config, db
-from .bot import dp, make_bot, send_digest
+from .bot import dp, make_bot, refresh_menu, send_digest
 from .server import start_server
 
 logging.basicConfig(
@@ -52,6 +52,11 @@ async def main() -> None:
     db.init()
     runner = await start_server()
     bot = await make_bot()
+
+    # у каждого чата своя кнопка меню, и общая настройка её не перебивает —
+    # поэтому переставляем адрес всем, кто уже писал боту
+    for chat_id in db.all_chats():
+        await refresh_menu(bot, chat_id)
 
     sched = AsyncIOScheduler(timezone=config.TZ)
     sched.add_job(weekly, "cron", day_of_week=config.DIGEST_DAY,
