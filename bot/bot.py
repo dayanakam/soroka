@@ -1,15 +1,17 @@
 """Хендлеры бота «Сорока»."""
 import asyncio
+import html
 import json
 import logging
+import re
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
 from aiogram.types import (BotCommand, InlineKeyboardButton, InlineKeyboardMarkup,
-                           KeyboardButton, MenuButtonCommands, MenuButtonWebApp, Message,
-                           ReplyKeyboardMarkup, WebAppInfo)
+                           InputMediaPhoto, KeyboardButton, MenuButtonCommands,
+                           MenuButtonWebApp, Message, ReplyKeyboardMarkup, WebAppInfo)
 
 from . import config, db, digest, server, wizard
 from .styles import CATEGORIES, STYLES, VETO_STEMS
@@ -105,8 +107,10 @@ def caption(item: dict) -> str:
     if item.get("old"):
         price += f"  <s>{rub(item['old'])}</s>  −{item['discount']}%"
 
-    lines = [f"<b>{item['brand']}</b> · {item['name']}", price,
-             f"Размеры: {', '.join(item.get('sizes', [])[:8]) or '—'}"]
+    lines = [f"<b>{item['brand']}</b> · {item['name']}", price]
+    sizes = [s for s in item.get("sizes", []) if s and s != "0"]
+    if sizes:                      # у сумок и аксессуаров размера нет
+        lines.append(f"Размеры: {', '.join(sizes[:8])}")
     if item.get("rating"):
         stars = f"★ {item['rating']:.1f}"
         if item.get("feedbacks"):
@@ -124,6 +128,59 @@ def buy_button(item: dict) -> InlineKeyboardMarkup:
         inline_keyboard=[[InlineKeyboardButton(text=label, url=item["url"])]])
 
 
+MAX_ALBUM = 10          # ограничение Telegram на альбом
+CAPTION_LIMIT = 1024
+
+
+def _short(text: str, limit: int = 38) -> str:
+    text = " ".join(text.split())
+    return text if len(text) <= limit else text[:limit - 1].rstrip(" ,.-") + "…"
+
+
+def album_caption(items: list[dict], head: str) -> str:
+    """Список под альбомом: строка на вещь, вся строка — ссылка на товар.
+
+    Адреса внутри тегов в лимит подписи не входят, считается видимый текст.
+    """
+    lines = [f"<b>{head}</b>", ""]
+    for i, it in enumerate(items, 1):
+        price = rub(it["price"])
+        if it.get("discount"):
+            price += f" <s>{rub(it['old'])}</s> −{it['discount']}%"
+        name = html.escape(_short(it["name"]))
+        brand = html.escape(it["brand"])
+        lines.append(f'{i}. <a href="{it["url"]}">{brand} · {name}</a> — {price}')
+    lines.append("")
+    lines.append("<i>Номера по порядку фотографий</i>")
+
+    text = "\n".join(lines)
+    while len(_visible(text)) > CAPTION_LIMIT and len(lines) > 4:
+        del lines[-3]                       # режем хвост списка, если не влезло
+        text = "\n".join(lines)
+    return text
+
+
+def _visible(html_text: str) -> str:
+    """Длину подписи Telegram считает по видимому тексту, без разметки."""
+    return re.sub(r"<[^>]+>", "", html_text)
+
+
+async def send_album(bot: Bot, chat_id: int, items: list[dict], head: str) -> bool:
+    """Одним постом. Возвращает False, если Telegram не принял альбом."""
+    chunk = items[:MAX_ALBUM]
+    caption = album_caption(chunk, head)
+    media = [InputMediaPhoto(media=it["img"],
+                             caption=caption if i == 0 else None,
+                             parse_mode=ParseMode.HTML)
+             for i, it in enumerate(chunk)]
+    try:
+        await bot.send_media_group(chat_id, media)
+        return True
+    except Exception as e:
+        log.warning("альбом не ушёл (%s), отправляю по одной", e)
+        return False
+
+
 async def send_items(bot: Bot, chat_id: int, items: list[dict]) -> None:
     for it in items:
         try:
@@ -139,14 +196,19 @@ async def send_digest(bot: Bot, chat_id: int, n: int | None = None,
     profile = db.get_profile(chat_id)
     if not profile or not profile.get("styles"):
         return 0
-    items = await digest.build(chat_id, profile, n or config.ITEMS_PER_DIGEST,
-                               only_drops=only_drops)
+    items, hint = await digest.build(chat_id, profile, n or config.ITEMS_PER_DIGEST,
+                                     only_drops=only_drops)
     if not items:
+        if hint and not only_drops:
+            await bot.send_message(chat_id, hint)
         return 0
-    head = (f"🔥 Резко подешевело — {len(items)} шт." if only_drops
-            else f"Натаскала за неделю · {len(items)} вещей под твой вкус")
-    await bot.send_message(chat_id, head)
-    await send_items(bot, chat_id, items)
+    head = (f"Резко подешевело — {len(items)} шт." if only_drops
+            else f"Натаскала {len(items)} вещей под твой вкус")
+    if not await send_album(bot, chat_id, items, head):
+        await bot.send_message(chat_id, head)
+        await send_items(bot, chat_id, items)
+    if hint:
+        await bot.send_message(chat_id, hint)
     return len(items)
 
 

@@ -72,6 +72,43 @@ def score(item: dict, style_id: str) -> float:
     return pts
 
 
+def why_thin(found: list[tuple[str, str, dict]], profile: dict) -> str | None:
+    """Какой фильтр отрезал больше всего. Нужно, чтобы бот не молчал,
+    когда подборка вышла скудной или однообразной."""
+    from collections import Counter
+    c: Counter = Counter()
+    cap = profile.get("budgetMax") or 10 ** 9
+    need = _MIN_DISCOUNT.get(str(profile.get("minDiscount", "any")), 0)
+
+    for _, category, item in found:
+        if item["price"] < profile.get("budgetMin", 0):
+            c["floor"] += 1
+        elif item["price"] > cap:
+            c["cap"] += 1
+        elif item.get("discount", 0) < need:
+            c["discount"] += 1
+        else:
+            size_key = SIZE_FOR.get(category)
+            want = (profile.get("sizes") or {}).get(size_key, "") if size_key else ""
+            if want and not _has_size(item, want):
+                c["size"] += 1
+
+    if not c:
+        return None
+    reason, count = c.most_common(1)[0]
+    if count < len(found) * 0.3:
+        return None
+    hints = {
+        "floor": ("Почти всё дешевле твоей нижней границы "
+                  f"{profile.get('budgetMin', 0):,} ₽".replace(",", " ") +
+                  " — опусти её, и выбор станет заметно шире."),
+        "cap": "Почти всё дороже твоего потолка — подними верхнюю границу.",
+        "discount": "Почти всё без нужной скидки — смягчи порог выгоды.",
+        "size": "Твоего размера почти нигде нет в наличии — проверь размеры в анкете.",
+    }
+    return hints.get(reason)
+
+
 def rank(found: list[tuple[str, str, dict]], profile: dict) -> list[dict]:
     """found: (style_id, category, item). Возвращает годные товары по убыванию оценки."""
     best: dict[int, dict] = {}
@@ -86,29 +123,40 @@ def rank(found: list[tuple[str, str, dict]], profile: dict) -> list[dict]:
 
 
 def diversify(items: list[dict], n: int) -> list[dict]:
-    """Не больше двух вещей одной категории подряд и по возможности разные стили."""
+    """Разводит подборку по категориям и стилям.
+
+    Лимит не жёсткий: если с ним не набралось, ослабляем его по шагу,
+    а не снимаем совсем — иначе хвост добивается тем, чего больше всего
+    в выдаче, и получается восемь пальто подряд.
+    """
+    base_cat = max(2, n // 4)
+    base_style = max(2, n // 3)
+
     out: list[dict] = []
-    per_cat: dict[str, int] = {}
-    per_style: dict[str, int] = {}
-    cap_cat = max(2, n // 3)
-    cap_style = max(2, n // 2)
+    chosen: set = set()
 
-    for it in items:
-        if len(out) >= n:
-            break
-        c, s = it["_category"], it["_style"]
-        if per_cat.get(c, 0) >= cap_cat or per_style.get(s, 0) >= cap_style:
-            continue
-        out.append(it)
-        per_cat[c] = per_cat.get(c, 0) + 1
-        per_style[s] = per_style.get(s, 0) + 1
+    for relax in range(0, 6):
+        per_cat: dict[str, int] = {}
+        per_style: dict[str, int] = {}
+        for it in out:                       # учитываем уже набранное
+            per_cat[it["_category"]] = per_cat.get(it["_category"], 0) + 1
+            per_style[it["_style"]] = per_style.get(it["_style"], 0) + 1
 
-    # добиваем, если из-за лимитов не набрали
-    if len(out) < n:
-        chosen = {i["id"] for i in out}
         for it in items:
             if len(out) >= n:
                 break
-            if it["id"] not in chosen:
-                out.append(it)
+            if it["id"] in chosen:
+                continue
+            c, s = it["_category"], it["_style"]
+            if per_cat.get(c, 0) >= base_cat + relax:
+                continue
+            if per_style.get(s, 0) >= base_style + relax:
+                continue
+            out.append(it)
+            chosen.add(it["id"])
+            per_cat[c] = per_cat.get(c, 0) + 1
+            per_style[s] = per_style.get(s, 0) + 1
+
+        if len(out) >= n:
+            break
     return out

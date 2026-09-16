@@ -3,7 +3,7 @@ import asyncio
 import logging
 
 from . import db
-from .ranker import diversify, rank
+from .ranker import diversify, rank, why_thin
 from .sources import wb
 from .styles import WB_BRANDS, queries_for
 
@@ -19,10 +19,25 @@ async def collect(profile: dict) -> list[tuple[str, str, dict]]:
     if not styles or not cats or not brands:
         return []
 
+    # чередуем и стили, и категории: иначе первые стили занимают весь лимит
+    # своими верхними категориями, и подборка выходит из одних пальто
     plan = queries_for(styles, cats)
-    # перемешиваем так, чтобы стили чередовались, и режем хвост
-    plan.sort(key=lambda t: styles.index(t[0]) if t[0] in styles else 99)
-    plan = plan[:MAX_QUERIES]
+    buckets: dict[tuple[str, str], list] = {}
+    for style_id, cat, phrase in plan:
+        buckets.setdefault((style_id, cat), []).append((style_id, cat, phrase))
+
+    order = sorted(buckets, key=lambda k: (styles.index(k[0]) if k[0] in styles else 99,
+                                           cats.index(k[1]) if k[1] in cats else 99))
+    plan, round_no = [], 0
+    while len(plan) < MAX_QUERIES and any(buckets.values()):
+        for key in order:
+            if len(plan) >= MAX_QUERIES:
+                break
+            if buckets[key]:
+                plan.append(buckets[key].pop(0))
+        round_no += 1
+        if round_no > 8:
+            break
 
     found: list[tuple[str, str, dict]] = []
     async with wb.make_session() as session:
@@ -40,11 +55,11 @@ async def collect(profile: dict) -> list[tuple[str, str, dict]]:
 
 
 async def build(chat_id: int, profile: dict, n: int,
-                only_drops: bool = False) -> list[dict]:
-    """Готовая подборка: отфильтрованная, отранжированная, без повторов, с фото."""
+                only_drops: bool = False) -> tuple[list[dict], str | None]:
+    """Готовая подборка и, если она вышла скудной, подсказка почему."""
     found = await collect(profile)
     if not found:
-        return []
+        return [], None
 
     ranked = rank(found, profile)
     if only_drops:
@@ -53,11 +68,17 @@ async def build(chat_id: int, profile: dict, n: int,
 
     fresh = db.filter_unseen(chat_id, ranked)
     picked = diversify(fresh, n)
+    # подсказка нужна не только когда вещей мало, но и когда они все из одной
+    # категории: восемь пальто подряд — тоже признак слишком узких фильтров
+    from collections import Counter
+    top = Counter(i["_category"] for i in picked).most_common(1)
+    monotone = bool(picked) and top and top[0][1] >= max(3, len(picked) * 0.6)
+    hint = why_thin(found, profile) if (len(picked) < n or monotone) else None
     if not picked:
-        return []
+        return [], hint
 
     async with wb.make_session() as session:
         picked = await wb.attach_images(session, picked)
 
     db.mark_seen(chat_id, picked)
-    return picked
+    return picked, hint
