@@ -773,6 +773,10 @@ function save(){
   }
   saving = true;
   say("Сохраняю…");
+  // Telegram закроет окно сразу после отправки — успеваем показать галочку
+  tg.MainButton.setText("Сохранено ✓");
+  tg.MainButton.showProgress(false);
+  if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
   try {
     tg.sendData(JSON.stringify({
       styles: state.styles,

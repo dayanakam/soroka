@@ -437,6 +437,8 @@ async def on_finish(cb: CallbackQuery) -> None:
         f"Категорий: {len(profile['categories'])} из {len(CATEGORIES)}\n"
         f"Размеры: {sz.get('top')} / {sz.get('bottom')} / обувь {sz.get('shoes')}\n"
         f"Бюджет: {cap}\n"
-        + (f"Стоп-лист: {', '.join(profile['veto'])}\n" if profile["veto"] else "")
-        + "\nЖми «✨ Подборка» — слетаю за находками.",
+        + (f"Стоп-лист: {', '.join(profile['veto'])}\n" if profile["veto"] else ""),
         parse_mode="HTML")
+
+    from .bot import go_button
+    await cb.message.answer("Готова искать под этот вкус.", reply_markup=go_button())

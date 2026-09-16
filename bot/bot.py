@@ -255,6 +255,52 @@ async def send_digest(bot: Bot, chat_id: int, n: int | None = None,
     return len(items)
 
 
+# ---------------------------------------------------------------- запуск подборки
+
+BUSY: set[int] = set()          # чтобы двойное нажатие не запускало два поиска
+
+
+def go_button(text: str = "✨ Собрать подборку") -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(text=text, callback_data="go:digest")]])
+
+
+async def run_digest(bot: Bot, chat_id: int, note_to: Message | None = None) -> None:
+    if chat_id in BUSY:
+        return
+    BUSY.add(chat_id)
+    note = None
+    try:
+        note = await bot.send_message(chat_id, "Улетела за находками…")
+        sent = await send_digest(bot, chat_id)
+        if not sent:
+            await bot.send_message(
+                chat_id,
+                "Вернулась с пустым клювом: либо всё уже показывала, либо фильтры "
+                "слишком узкие. Попробуй расширить бюджет или включить больше "
+                "категорий — «🎨 Мой вкус».")
+    finally:
+        BUSY.discard(chat_id)
+        if note:
+            try:
+                await note.delete()
+            except Exception:
+                pass
+
+
+@dp.callback_query(F.data == "go:digest")
+async def on_go(cb: CallbackQuery) -> None:
+    if cb.message.chat.id in BUSY:
+        await cb.answer("Уже ищу, подожди немного")
+        return
+    await cb.answer("Полетела")
+    try:
+        await cb.message.edit_reply_markup(reply_markup=None)
+    except Exception:
+        pass
+    await run_digest(cb.bot, cb.message.chat.id)
+
+
 # ---------------------------------------------------------------- оценки
 
 def feedback_kb(items: list[dict], did: str, liked: set[str]) -> InlineKeyboardMarkup:
@@ -362,16 +408,10 @@ async def now(msg: Message) -> None:
         await msg.answer("Сначала анкета — иначе я не знаю, что искать. Жми «🎨 Мой вкус».",
                          reply_markup=keyboard(msg.chat.id))
         return
-    note = await msg.answer("Улетела за находками…")
-    sent = await send_digest(msg.bot, msg.chat.id)
-    try:
-        await note.delete()
-    except Exception:
-        pass
-    if not sent:
-        await msg.answer(
-            "Вернулась с пустым клювом: либо всё уже показывала, либо фильтры слишком узкие.\n"
-            "Попробуй расширить бюджет или включить больше категорий — «🎨 Мой вкус».")
+    if msg.chat.id in BUSY:
+        await msg.answer("Уже ищу, подожди немного")
+        return
+    await run_digest(msg.bot, msg.chat.id)
 
 
 @dp.message(Command("proverka"))
@@ -442,8 +482,9 @@ async def from_miniapp(msg: Message) -> None:
         f"<b>Записала</b>\n\nСтили: {names}\n"
         f"Категорий: {len(profile.get('categories') or [])} из {len(CATEGORIES)}\n"
         f"Размеры: {sz.get('top')} / {sz.get('bottom')} / обувь {sz.get('shoes')}\n"
-        f"Бюджет: до {cap}\n\nЖми «✨ Подборка».",
+        f"Бюджет: до {cap}",
         reply_markup=keyboard(msg.chat.id))
+    await msg.answer("Готова искать под этот вкус.", reply_markup=go_button())
 
 
 @dp.message()
