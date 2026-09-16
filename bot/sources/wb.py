@@ -32,6 +32,15 @@ UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
 SEARCH = ("https://search.wb.ru/exactmatch/ru/common/v4/search"
           "?appType=1&curr=rub&dest=-1257786&resultset=catalog&sort=popular&spp=30&query={}")
 
+# Поиск умеет фильтровать сразу по нескольким брендам — это один запрос
+# на полку вместо одного на каждый бренд.
+BRAND_IDS = {"mango": 2513, "befree": 4126, "ekonika": 13293, "calzedonia": 759616}
+
+# Выдача по одному запросу живёт недолго, но за это время человек успевает
+# нажать «Подборка» второй раз, а расписание — обойти нескольких людей.
+_CACHE_TTL = 1200
+_cache: dict[str, tuple[float, list[dict]]] = {}
+
 # WB раскладывает картинки по хостам basket-NN в зависимости от vol = id // 100000.
 # Это опубликованные границы; дальше шаг держится на 320 vol'ов.
 _BOUNDS = [143, 287, 431, 719, 1007, 1061, 1115, 1169, 1313, 1601, 1655, 1919,
@@ -115,14 +124,29 @@ async def image_url(session: aiohttp.ClientSession, pid: int, idx: int = 1) -> s
     return None
 
 
-async def search(session: aiohttp.ClientSession, query: str, brand: str,
-                 limit: int = 60) -> list[dict]:
-    """Товары точно указанного бренда по запросу.
+async def search(session: aiohttp.ClientSession, query: str,
+                 brands: str | list[str], limit: int = 100) -> list[dict]:
+    """Товары указанных брендов по запросу — одним запросом на все бренды.
 
-    Бренд сверяется строго: на WB полно «MANGOOFASHION» и «XseniyaLime»,
-    которые к Mango и Lime отношения не имеют.
+    Бренд сверяется строго и после фильтра: на WB полно «MANGOOFASHION»
+    и «XseniyaLime», которые к Mango и Lime отношения не имеют.
     """
-    url = SEARCH.format(quote(f"{brand} {query}"))
+    if isinstance(brands, str):
+        brands = [brands]
+    want = {b.lower() for b in brands}
+    ids = [BRAND_IDS[b] for b in want if b in BRAND_IDS]
+
+    url = SEARCH.format(quote(query))
+    if ids:
+        url += "&fbrand=" + ";".join(str(i) for i in sorted(ids))
+    else:  # бренда нет в справочнике — ищем по названию, как раньше
+        url = SEARCH.format(quote(f"{brands[0]} {query}"))
+
+    now = asyncio.get_running_loop().time()
+    hit = _cache.get(url)
+    if hit and now - hit[0] < _CACHE_TTL:
+        return hit[1]
+
     data = None
     for attempt in range(3):
         await _throttle()
@@ -146,10 +170,9 @@ async def search(session: aiohttp.ClientSession, query: str, brand: str,
         log.warning("WB search %r: не пробились сквозь 429", query)
         return []
 
-    want = brand.lower()
     out: list[dict] = []
     for p in (data.get("products") or [])[:limit]:
-        if (p.get("brand") or "").strip().lower() != want:
+        if (p.get("brand") or "").strip().lower() not in want:
             continue
         sizes = [s for s in (p.get("sizes") or []) if (s.get("price") or {}).get("product")]
         if not sizes:
@@ -170,6 +193,11 @@ async def search(session: aiohttp.ClientSession, query: str, brand: str,
             "sizes": [s for s in avail if s],
             "url": f"https://www.wildberries.ru/catalog/{p['id']}/detail.aspx",
         })
+
+    _cache[url] = (now, out)
+    if len(_cache) > 400:                      # не копим бесконечно
+        for k in [k for k, (t, _) in _cache.items() if now - t > _CACHE_TTL]:
+            _cache.pop(k, None)
     return out
 
 

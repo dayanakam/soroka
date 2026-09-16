@@ -9,7 +9,7 @@ from .styles import WB_BRANDS, queries_for
 
 log = logging.getLogger(__name__)
 
-MAX_QUERIES = 14  # на каждый запрос ещё умножается число брендов
+MAX_QUERIES = 18  # один запрос на полку — бренды фильтруются на стороне WB
 
 
 async def collect(profile: dict) -> list[tuple[str, str, dict]]:
@@ -26,11 +26,11 @@ async def collect(profile: dict) -> list[tuple[str, str, dict]]:
 
     found: list[tuple[str, str, dict]] = []
     async with wb.make_session() as session:
-        async def one(style_id: str, cat: str, phrase: str, brand: str):
-            items = await wb.search(session, phrase, brand)
-            return [(style_id, cat, it) for it in items[:10]]
+        async def one(style_id: str, cat: str, phrase: str):
+            items = await wb.search(session, phrase, brands)
+            return [(style_id, cat, it) for it in items[:16]]
 
-        tasks = [one(s, c, p, b) for (s, c, p) in plan for b in brands]
+        tasks = [one(s, c, p) for (s, c, p) in plan]
         for chunk in await asyncio.gather(*tasks, return_exceptions=True):
             if isinstance(chunk, Exception):
                 log.warning("поиск упал: %s", chunk)
