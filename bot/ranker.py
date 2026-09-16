@@ -1,10 +1,34 @@
 """Отбор и сортировка: что из найденного вообще годится и что показать первым."""
+import datetime as dt
 import math
 import re
+import statistics
 
 from .styles import STYLES, SIZE_FOR, VETO_STEMS
 
 _MIN_DISCOUNT = {"any": 0, "20": 20, "30": 30, "50": 50}
+
+# Сезонность: пуховик в июле и купальник в январе — признак глупого сервиса.
+# hi — месяцы, когда категория уместна, lo — когда почти наверняка мимо.
+SEASON = {
+    "outerwear": {"hi": {10, 11, 12, 1, 2, 3}, "lo": {6, 7, 8}},
+    "knit":      {"hi": {10, 11, 12, 1, 2, 3}, "lo": {6, 7}},
+    "swim":      {"hi": {5, 6, 7, 8},          "lo": {11, 12, 1, 2, 3}},
+    "dresses":   {"hi": {4, 5, 6, 7, 8, 9},    "lo": set()},
+    "shoes":     {"hi": set(),                 "lo": set()},
+}
+
+
+def season_bonus(category: str, month: int | None = None) -> float:
+    rule = SEASON.get(category)
+    if not rule:
+        return 0.0
+    month = month or dt.date.today().month
+    if month in rule["lo"]:
+        return -30.0
+    if month in rule["hi"]:
+        return 14.0
+    return 0.0
 
 
 def _norm(s: str) -> str:
@@ -25,7 +49,10 @@ def _has_size(item: dict, want: str) -> bool:
     return False
 
 
-def passes(item: dict, profile: dict, category: str) -> bool:
+def passes(item: dict, profile: dict, category: str,
+           disliked: set[str] | None = None) -> bool:
+    if disliked and str(item["id"]) in disliked:
+        return False                     # отмеченное «мимо» больше не показываем
     price = item["price"]
     if price < profile.get("budgetMin", 0):
         return False
@@ -57,11 +84,26 @@ def passes(item: dict, profile: dict, category: str) -> bool:
     return True
 
 
-def score(item: dict, style_id: str) -> float:
+def score(item: dict, style_id: str, prefs: dict | None = None,
+          category: str = "") -> float:
     s = STYLES.get(style_id, {})
     name = _norm(item.get("name", ""))
 
     pts = 0.0
+    pts += season_bonus(category)
+
+    if prefs:
+        # оценки человека весомее моих догадок о стилях, но не перекрывают их
+        pts += 26 * prefs.get("styles", {}).get(style_id, 0.0)
+        pts += 20 * prefs.get("categories", {}).get(category, 0.0)
+        pts += 14 * prefs.get("brands", {}).get(item.get("brand", ""), 0.0)
+
+        liked = prefs.get("liked_prices") or []
+        if len(liked) >= 3:
+            # чем дальше цена от той, что человек одобряет, тем хуже
+            mid = statistics.median(liked)
+            spread = max(mid * 0.6, 1500)
+            pts += 12 * max(-1.0, 1 - abs(item["price"] - mid) / spread)
     pts += 12 * sum(1 for stem in s.get("boost", []) if stem in name)
     pts -= 20 * sum(1 for stem in s.get("avoid", []) if stem in name)
 
@@ -109,13 +151,14 @@ def why_thin(found: list[tuple[str, str, dict]], profile: dict) -> str | None:
     return hints.get(reason)
 
 
-def rank(found: list[tuple[str, str, dict]], profile: dict) -> list[dict]:
+def rank(found: list[tuple[str, str, dict]], profile: dict,
+         prefs: dict | None = None, disliked: set[str] | None = None) -> list[dict]:
     """found: (style_id, category, item). Возвращает годные товары по убыванию оценки."""
     best: dict[int, dict] = {}
     for style_id, category, item in found:
-        if not passes(item, profile, category):
+        if not passes(item, profile, category, disliked):
             continue
-        pts = score(item, style_id)
+        pts = score(item, style_id, prefs, category)
         prev = best.get(item["id"])
         if prev is None or pts > prev["_score"]:
             best[item["id"]] = {**item, "_score": pts, "_style": style_id, "_category": category}

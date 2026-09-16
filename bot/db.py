@@ -45,6 +45,25 @@ CREATE TABLE IF NOT EXISTS uploads (
     key      TEXT PRIMARY KEY,
     file_id  TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS feedback (
+    chat_id    INTEGER NOT NULL,
+    item_id    TEXT    NOT NULL,
+    style      TEXT    NOT NULL,
+    category   TEXT    NOT NULL,
+    brand      TEXT    NOT NULL,
+    price      INTEGER NOT NULL,
+    liked      INTEGER NOT NULL,      -- 1 нравится, 0 мимо
+    at         REAL    NOT NULL,
+    PRIMARY KEY (chat_id, item_id)
+);
+CREATE INDEX IF NOT EXISTS feedback_chat ON feedback (chat_id);
+CREATE TABLE IF NOT EXISTS digests (
+    chat_id   INTEGER NOT NULL,
+    digest_id TEXT    NOT NULL,
+    payload   TEXT    NOT NULL,
+    at        REAL    NOT NULL,
+    PRIMARY KEY (chat_id, digest_id)
+);
 """
 
 
@@ -198,6 +217,95 @@ def set_file_id(key: str, file_id: str) -> None:
         c.execute("""INSERT INTO uploads (key, file_id) VALUES (?,?)
                      ON CONFLICT(key) DO UPDATE SET file_id=excluded.file_id""",
                   (key, file_id))
+
+
+# ---------------------------------------------------------------- подборки
+
+DIGEST_FIELDS = ("id", "_style", "_category", "brand", "price", "name", "url")
+
+
+def save_digest(chat_id: int, digest_id: str, items: list[dict]) -> None:
+    """Запоминаем состав подборки, чтобы кнопки оценок знали, что оценивают."""
+    slim = [{k: it.get(k) for k in DIGEST_FIELDS} for it in items]
+    with _conn() as c:
+        c.execute("INSERT OR REPLACE INTO digests VALUES (?,?,?,?)",
+                  (chat_id, digest_id, json.dumps(slim, ensure_ascii=False), time.time()))
+        c.execute("DELETE FROM digests WHERE chat_id=? AND at < ?",
+                  (chat_id, time.time() - 60 * 86400))
+
+
+def get_digest(chat_id: int, digest_id: str) -> list[dict]:
+    with _conn() as c:
+        row = c.execute("SELECT payload FROM digests WHERE chat_id=? AND digest_id=?",
+                        (chat_id, digest_id)).fetchone()
+    return json.loads(row["payload"]) if row else []
+
+
+def liked_in(chat_id: int, item_ids: list[str]) -> set[str]:
+    if not item_ids:
+        return set()
+    marks = ",".join("?" * len(item_ids))
+    with _conn() as c:
+        return {r["item_id"] for r in c.execute(
+            f"SELECT item_id FROM feedback WHERE chat_id=? AND liked=1 "
+            f"AND item_id IN ({marks})", (chat_id, *item_ids))}
+
+
+# ---------------------------------------------------------------- оценки
+
+def set_feedback(chat_id: int, item: dict, liked: bool) -> None:
+    with _conn() as c:
+        c.execute(
+            """INSERT INTO feedback (chat_id, item_id, style, category, brand,
+                                     price, liked, at)
+               VALUES (?,?,?,?,?,?,?,?)
+               ON CONFLICT(chat_id, item_id) DO UPDATE SET
+                 liked=excluded.liked, at=excluded.at""",
+            (chat_id, str(item["id"]), item.get("_style", ""), item.get("_category", ""),
+             item.get("brand", ""), int(item.get("price", 0)), int(liked), time.time()))
+
+
+def disliked_ids(chat_id: int) -> set[str]:
+    with _conn() as c:
+        return {r["item_id"] for r in c.execute(
+            "SELECT item_id FROM feedback WHERE chat_id=? AND liked=0", (chat_id,))}
+
+
+def get_prefs(chat_id: int) -> dict:
+    """Что человек оценил — в виде понятных весов от -1 до 1.
+
+    Без обучения и моделей: доля лайков минус доля дизлайков по каждому
+    признаку, приглушённая, если оценок мало. Так вес не улетает от двух
+    случайных нажатий и всегда объясним.
+    """
+    with _conn() as c:
+        rows = c.execute(
+            "SELECT style, category, brand, price, liked FROM feedback WHERE chat_id=?",
+            (chat_id,)).fetchall()
+    if not rows:
+        return {"styles": {}, "categories": {}, "brands": {}, "liked_prices": [], "total": 0}
+
+    def tally(field):
+        pos, neg = {}, {}
+        for r in rows:
+            key = r[field]
+            if not key:
+                continue
+            (pos if r["liked"] else neg)[key] = (pos if r["liked"] else neg).get(key, 0) + 1
+        out = {}
+        for key in set(pos) | set(neg):
+            p, n = pos.get(key, 0), neg.get(key, 0)
+            trust = (p + n) / (p + n + 3)          # три оценки — половина доверия
+            out[key] = ((p - n) / (p + n)) * trust
+        return out
+
+    return {
+        "styles": tally("style"),
+        "categories": tally("category"),
+        "brands": tally("brand"),
+        "liked_prices": sorted(r["price"] for r in rows if r["liked"]),
+        "total": len(rows),
+    }
 
 
 def prune_seen(days: int = 120) -> None:

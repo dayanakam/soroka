@@ -61,7 +61,8 @@ async def build(chat_id: int, profile: dict, n: int,
     if not found:
         return [], None
 
-    ranked = rank(found, profile)
+    prefs = db.get_prefs(chat_id)
+    ranked = rank(found, profile, prefs, db.disliked_ids(chat_id))
     if only_drops:
         # для срочных уведомлений — только заметные скидки
         ranked = [i for i in ranked if i.get("discount", 0) >= 40]

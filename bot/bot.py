@@ -4,11 +4,13 @@ import html
 import json
 import logging
 import re
+import time
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
+from aiogram.types import CallbackQuery
 from aiogram.types import (BotCommand, BufferedInputFile, InlineKeyboardButton,
                            InlineKeyboardMarkup, InputMediaPhoto, KeyboardButton,
                            MenuButtonCommands, MenuButtonWebApp, Message,
@@ -247,9 +249,72 @@ async def send_digest(bot: Bot, chat_id: int, n: int | None = None,
     if not await send_album(bot, chat_id, items, head):
         await bot.send_message(chat_id, head)
         await send_items(bot, chat_id, items)
+    await ask_feedback(bot, chat_id, items)
     if hint:
         await bot.send_message(chat_id, hint)
     return len(items)
+
+
+# ---------------------------------------------------------------- оценки
+
+def feedback_kb(items: list[dict], did: str, liked: set[str]) -> InlineKeyboardMarkup:
+    row, rows = [], []
+    for i, it in enumerate(items, 1):
+        mark = "✓" if str(it["id"]) in liked else ""
+        row.append(InlineKeyboardButton(text=f"{mark}{i}", callback_data=f"fb:l:{did}:{i - 1}"))
+        if len(row) == 4:
+            rows.append(row); row = []
+    if row:
+        rows.append(row)
+    rows.append([InlineKeyboardButton(text="Всё мимо", callback_data=f"fb:none:{did}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+async def ask_feedback(bot: Bot, chat_id: int, items: list[dict]) -> None:
+    did = str(int(time.time()))
+    db.save_digest(chat_id, did, items)
+    await bot.send_message(
+        chat_id,
+        "Отметь номера, которые понравились — так я быстрее пойму твой вкус.\n"
+        "<i>Номера совпадают с порядком фотографий.</i>",
+        reply_markup=feedback_kb(items, did, set()))
+
+
+@dp.callback_query(F.data.startswith("fb:l:"))
+async def on_like(cb: CallbackQuery) -> None:
+    _, _, did, idx = cb.data.split(":")
+    items = db.get_digest(cb.message.chat.id, did)
+    if not items or int(idx) >= len(items):
+        await cb.answer("Эта подборка уже старая", show_alert=True)
+        return
+
+    item = items[int(idx)]
+    liked = db.liked_in(cb.message.chat.id, [str(i["id"]) for i in items])
+    now_liked = str(item["id"]) not in liked
+    db.set_feedback(cb.message.chat.id, item, now_liked)
+    await cb.answer("Запомнила" if now_liked else "Убрала")
+
+    liked = db.liked_in(cb.message.chat.id, [str(i["id"]) for i in items])
+    try:
+        await cb.message.edit_reply_markup(reply_markup=feedback_kb(items, did, liked))
+    except Exception:
+        pass
+
+
+@dp.callback_query(F.data.startswith("fb:none:"))
+async def on_none(cb: CallbackQuery) -> None:
+    did = cb.data.split(":")[2]
+    items = db.get_digest(cb.message.chat.id, did)
+    if not items:
+        await cb.answer("Эта подборка уже старая", show_alert=True)
+        return
+    for it in items:
+        db.set_feedback(cb.message.chat.id, it, False)
+    await cb.answer("Поняла, не буду такое присылать")
+    try:
+        await cb.message.edit_text("Записала: вся подборка мимо. Учту в следующей.")
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------- handlers
