@@ -13,7 +13,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Брюки прямые костюмные с разрезами школьные",
   "id": 478223011,
-  "crop": true
+  "crop": True
  },
  "quiet": {
   "img": "https://basket-27.wbbasket.ru/vol4968/part496842/496842835/images/c516x688/2.webp",
@@ -21,7 +21,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Пальто оверсайз длинное драповое с поясом",
   "id": 496842835,
-  "crop": true
+  "crop": True
  },
  "office": {
   "img": "https://basket-34.wbbasket.ru/vol7339/part733931/733931454/images/c516x688/3.webp",
@@ -29,7 +29,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Рубашка oversize с карманом",
   "id": 733931454,
-  "crop": true
+  "crop": True
  },
  "smart": {
   "img": "https://basket-11.wbbasket.ru/vol1638/part163832/163832318/images/c516x688/3.webp",
@@ -37,7 +37,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Пиджак оверсайз удлиненный классический школьный",
   "id": 163832318,
-  "crop": true
+  "crop": True
  },
  "casual": {
   "img": "https://basket-31.wbbasket.ru/vol6177/part617773/617773455/images/c516x688/2.webp",
@@ -45,7 +45,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Джинсы прямые классические со средней посадкой",
   "id": 617773455,
-  "crop": true
+  "crop": True
  },
  "street": {
   "img": "https://basket-27.wbbasket.ru/vol4946/part494664/494664474/images/c516x688/2.webp",
@@ -53,7 +53,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Худи-полузамок спортивная с капюшоном",
   "id": 494664474,
-  "crop": true
+  "crop": True
  },
  "athleisure": {
   "img": "https://basket-16.wbbasket.ru/vol2500/part250024/250024746/images/c516x688/2.webp",
@@ -61,7 +61,7 @@ COVERS = {
   "brand": "calzedonia",
   "name": "Леггинсы из хлопка",
   "id": 250024746,
-  "crop": true
+  "crop": True
  },
  "romantic": {
   "img": "https://basket-39.wbbasket.ru/vol8842/part884239/884239294/images/c516x688/3.webp",
@@ -69,7 +69,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Платье асимметричное миди с принтом и кружевом летнее",
   "id": 884239294,
-  "crop": true
+  "crop": True
  },
  "ballet": {
   "img": "https://basket-18.wbbasket.ru/vol2934/part293419/293419150/images/c516x688/2.webp",
@@ -77,7 +77,7 @@ COVERS = {
   "brand": "EKONIKA",
   "name": "Балетки Мэри Джейн",
   "id": 293419150,
-  "crop": false
+  "crop": False
  },
  "black": {
   "img": "https://basket-32.wbbasket.ru/vol6500/part650062/650062407/images/c516x688/2.webp",
@@ -85,7 +85,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Платье миди асимметричное из жатой ткани школьное",
   "id": 650062407,
-  "crop": true
+  "crop": True
  },
  "grunge": {
   "img": "https://basket-38.wbbasket.ru/vol8637/part863738/863738755/images/c516x688/2.webp",
@@ -93,7 +93,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Рубашка в клетку с присборенным нижним краем",
   "id": 863738755,
-  "crop": true
+  "crop": True
  },
  "boho": {
   "img": "https://basket-41.wbbasket.ru/vol9877/part987765/987765743/images/c516x688/2.webp",
@@ -101,7 +101,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Платье макси из хлопкового муслина с пышными рукавами летнее",
   "id": 987765743,
-  "crop": true
+  "crop": True
  },
  "preppy": {
   "img": "https://basket-44.wbbasket.ru/vol12287/part1228714/1228714598/images/c516x688/2.webp",
@@ -109,7 +109,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Кардиган вязаный на пуговицах",
   "id": 1228714598,
-  "crop": true
+  "crop": True
  },
  "denim": {
   "img": "https://basket-39.wbbasket.ru/vol8842/part884213/884213814/images/c516x688/1.webp",
@@ -117,7 +117,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Куртка джинсовая укороченная с отложным воротником",
   "id": 884213814,
-  "crop": true
+  "crop": True
  },
  "utility": {
   "img": "https://basket-25.wbbasket.ru/vol4550/part455048/455048771/images/c516x688/1.webp",
@@ -125,7 +125,7 @@ COVERS = {
   "brand": "Befree",
   "name": "Куртка стеганая с воротником-стойкой",
   "id": 455048771,
-  "crop": true
+  "crop": True
  },
  "glam": {
   "img": "https://basket-29.wbbasket.ru/vol5608/part560832/560832925/images/c516x688/2.webp",
@@ -133,6 +133,6 @@ COVERS = {
   "brand": "Befree",
   "name": "Платье мини облегающее с пайетками",
   "id": 560832925,
-  "crop": true
+  "crop": True
  }
 }
