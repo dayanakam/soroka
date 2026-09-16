@@ -5,12 +5,10 @@
 """
 import logging
 from aiogram import Bot, F, Router
-from pathlib import Path
+from aiogram.types import (CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup,
+                           InputMediaPhoto, Message)
 
-from aiogram.types import (CallbackQuery, FSInputFile, InlineKeyboardButton,
-                           InlineKeyboardMarkup, InputMediaPhoto, Message)
-
-from . import config, db
+from . import db
 from .examples import EXAMPLES
 
 try:
@@ -65,21 +63,14 @@ def _rows(buttons: list[InlineKeyboardButton], per_row: int) -> InlineKeyboardMa
     return InlineKeyboardMarkup(inline_keyboard=grid)
 
 
-def _photo(style_id: str) -> str | FSInputFile | None:
+def _photo(style_id: str) -> str | None:
     """Сначала file_id — Telegram уже хранит картинку и второй раз её не грузит.
-    Потом наш файл обложки. И только если его нет — ссылка на снимок WB,
-    которая может протухнуть вместе с товаром."""
+    Дальше ссылка на каталожный кадр WB: копий у нас нет."""
     cached = db.get_file_id(f"style:{style_id}")
     if cached:
         return cached
-
-    c = COVERS.get(style_id)
-    if c:
-        path = config.MINIAPP_DIR / Path(c["file"])
-        if path.exists():
-            return FSInputFile(path)
-
-    return (EXAMPLES.get(style_id) or {}).get("img")
+    c = COVERS.get(style_id) or EXAMPLES.get(style_id) or {}
+    return c.get("img")
 
 
 def _remember_photo(style_id: str, msg: Message) -> None:

@@ -1,120 +1,138 @@
-"""Обложки стилей: файлы в docs/img и авторы снимков.
+"""Обложки стилей: каталожные кадры товаров с Wildberries.
 
-Кадры отобраны вручную под единую подачу: человек в полный рост,
-ровный фон. Лицензия Pexels разрешает хранить и использовать копии.
+Кадры отобраны вручную: вещь крупно, по возможности без лица.
+Копий у нас нет — только адреса, снимки остаются на серверах WB.
+crop=False там, где в кадре нет модели и подрезать верх не нужно.
+Протухшие обложки заменяет refresh_examples.py.
 """
 
 COVERS = {
  "minimal": {
-  "photo_id": 31679362,
-  "author": "Cromwell Ken",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/stylish-woman-in-casual-beige-outfit-portrait-31679362/",
-  "file": "img/minimal.jpg"
+  "img": "https://basket-26.wbbasket.ru/vol4782/part478223/478223011/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/478223011/detail.aspx",
+  "brand": "Befree",
+  "name": "Брюки прямые костюмные с разрезами школьные",
+  "id": 478223011,
+  "crop": true
  },
  "quiet": {
-  "photo_id": 6774574,
-  "author": "Michelle Leman",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/diverse-women-in-stylish-coats-and-socks-6774574/",
-  "file": "img/quiet.jpg"
+  "img": "https://basket-27.wbbasket.ru/vol4968/part496842/496842835/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/496842835/detail.aspx",
+  "brand": "Befree",
+  "name": "Пальто оверсайз длинное драповое с поясом",
+  "id": 496842835,
+  "crop": true
  },
  "office": {
-  "photo_id": 7203488,
-  "author": "Tima Miroshnichenko",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/woman-in-pink-blazer-and-pink-pants-7203488/",
-  "file": "img/office.jpg"
+  "img": "https://basket-34.wbbasket.ru/vol7339/part733931/733931454/images/c516x688/3.webp",
+  "product": "https://www.wildberries.ru/catalog/733931454/detail.aspx",
+  "brand": "Befree",
+  "name": "Рубашка oversize с карманом",
+  "id": 733931454,
+  "crop": true
  },
  "smart": {
-  "photo_id": 7760002,
-  "author": "cottonbro studio",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/a-woman-in-black-blazer-and-blue-denim-jeans-7760002/",
-  "file": "img/smart.jpg"
+  "img": "https://basket-11.wbbasket.ru/vol1638/part163832/163832318/images/c516x688/3.webp",
+  "product": "https://www.wildberries.ru/catalog/163832318/detail.aspx",
+  "brand": "Befree",
+  "name": "Пиджак оверсайз удлиненный классический школьный",
+  "id": 163832318,
+  "crop": true
  },
  "casual": {
-  "photo_id": 31514678,
-  "author": "Dmitriy Steinke",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/stylish-young-woman-in-grey-on-black-studio-background-31514678/",
-  "file": "img/casual.jpg"
+  "img": "https://basket-31.wbbasket.ru/vol6177/part617773/617773455/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/617773455/detail.aspx",
+  "brand": "Befree",
+  "name": "Джинсы прямые классические со средней посадкой",
+  "id": 617773455,
+  "crop": true
  },
  "street": {
-  "photo_id": 16982868,
-  "author": "Alina  Rossoshanska",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/smiling-model-in-an-oversized-brown-hoodie-16982868/",
-  "file": "img/street.jpg"
+  "img": "https://basket-27.wbbasket.ru/vol4946/part494664/494664474/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/494664474/detail.aspx",
+  "brand": "Befree",
+  "name": "Худи-полузамок спортивная с капюшоном",
+  "id": 494664474,
+  "crop": true
  },
  "athleisure": {
-  "photo_id": 14571332,
-  "author": "Vika Glitter",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/boy-posing-on-white-background-14571332/",
-  "file": "img/athleisure.jpg"
+  "img": "https://basket-16.wbbasket.ru/vol2500/part250024/250024746/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/250024746/detail.aspx",
+  "brand": "calzedonia",
+  "name": "Леггинсы из хлопка",
+  "id": 250024746,
+  "crop": true
  },
  "romantic": {
-  "photo_id": 11054057,
-  "author": "Christina Chekhomova",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/short-haired-woman-in-red-floral-dress-smiling-11054057/",
-  "file": "img/romantic.jpg"
+  "img": "https://basket-39.wbbasket.ru/vol8842/part884239/884239294/images/c516x688/3.webp",
+  "product": "https://www.wildberries.ru/catalog/884239294/detail.aspx",
+  "brand": "Befree",
+  "name": "Платье асимметричное миди с принтом и кружевом летнее",
+  "id": 884239294,
+  "crop": true
  },
  "ballet": {
-  "photo_id": 5888585,
-  "author": "Gustavo Fring",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/portrait-of-a-ballerina-against-a-white-background-5888585/",
-  "file": "img/ballet.jpg"
+  "img": "https://basket-18.wbbasket.ru/vol2934/part293419/293419150/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/293419150/detail.aspx",
+  "brand": "EKONIKA",
+  "name": "Балетки Мэри Джейн",
+  "id": 293419150,
+  "crop": false
  },
  "black": {
-  "photo_id": 20828586,
-  "author": "Andrea Musto",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/woman-in-top-and-high-heels-20828586/",
-  "file": "img/black.jpg"
+  "img": "https://basket-32.wbbasket.ru/vol6500/part650062/650062407/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/650062407/detail.aspx",
+  "brand": "Befree",
+  "name": "Платье миди асимметричное из жатой ткани школьное",
+  "id": 650062407,
+  "crop": true
  },
  "grunge": {
-  "photo_id": 6211616,
-  "author": "Dima Valkov",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/studio-portrait-of-a-smiling-woman-in-a-leather-jacket-6211616/",
-  "file": "img/grunge.jpg"
+  "img": "https://basket-38.wbbasket.ru/vol8637/part863738/863738755/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/863738755/detail.aspx",
+  "brand": "Befree",
+  "name": "Рубашка в клетку с присборенным нижним краем",
+  "id": 863738755,
+  "crop": true
  },
  "boho": {
-  "photo_id": 37347197,
-  "author": "Darkshade Photos",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/elegant-portrait-of-woman-in-traditional-fashion-37347197/",
-  "file": "img/boho.jpg"
+  "img": "https://basket-41.wbbasket.ru/vol9877/part987765/987765743/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/987765743/detail.aspx",
+  "brand": "Befree",
+  "name": "Платье макси из хлопкового муслина с пышными рукавами летнее",
+  "id": 987765743,
+  "crop": true
  },
  "preppy": {
-  "photo_id": 20220083,
-  "author": "Larisa  Kruchina",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/woman-in-skirt-standing-and-leaning-on-chair-20220083/",
-  "file": "img/preppy.jpg"
+  "img": "https://basket-44.wbbasket.ru/vol12287/part1228714/1228714598/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/1228714598/detail.aspx",
+  "brand": "Befree",
+  "name": "Кардиган вязаный на пуговицах",
+  "id": 1228714598,
+  "crop": true
  },
  "denim": {
-  "photo_id": 6770025,
-  "author": "cottonbro studio",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/a-woman-wearing-denim-jacket-and-denim-skirt-6770025/",
-  "file": "img/denim.jpg"
+  "img": "https://basket-39.wbbasket.ru/vol8842/part884213/884213814/images/c516x688/1.webp",
+  "product": "https://www.wildberries.ru/catalog/884213814/detail.aspx",
+  "brand": "Befree",
+  "name": "Куртка джинсовая укороченная с отложным воротником",
+  "id": 884213814,
+  "crop": true
  },
  "utility": {
-  "photo_id": 8422354,
-  "author": "Pavel Danilyuk",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/stylish-woman-with-braided-hair-8422354/",
-  "file": "img/utility.jpg"
+  "img": "https://basket-25.wbbasket.ru/vol4550/part455048/455048771/images/c516x688/1.webp",
+  "product": "https://www.wildberries.ru/catalog/455048771/detail.aspx",
+  "brand": "Befree",
+  "name": "Куртка стеганая с воротником-стойкой",
+  "id": 455048771,
+  "crop": true
  },
  "glam": {
-  "photo_id": 9563069,
-  "author": "Алексей Вечерин",
-  "author_url": "",
-  "page": "https://www.pexels.com/photo/a-woman-in-gray-sleeveless-dress-9563069/",
-  "file": "img/glam.jpg"
+  "img": "https://basket-29.wbbasket.ru/vol5608/part560832/560832925/images/c516x688/2.webp",
+  "product": "https://www.wildberries.ru/catalog/560832925/detail.aspx",
+  "brand": "Befree",
+  "name": "Платье мини облегающее с пайетками",
+  "id": 560832925,
+  "crop": true
  }
 }
